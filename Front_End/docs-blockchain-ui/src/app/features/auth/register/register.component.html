@@ -1,0 +1,183 @@
+<div class="auth-page">
+  <div class="bg-overlay"></div>
+
+  <div class="auth-shell">
+    <!-- Bloc branding -->
+    <div class="auth-side">
+      <div class="logo">Docs<span>Chain</span></div>
+      <h1>On-boardez votre organisation sur la blockchain</h1>
+      <p class="subtitle">
+        Créez un espace sécurisé pour stocker, horodater et vérifier vos contrats,
+        attestations, diplômes et tous vos documents critiques.
+      </p>
+
+      <div class="pill-grid">
+        <span>Organisations</span>
+        <span>Universités</span>
+        <span>Banques</span>
+        <span>FinTech</span>
+      </div>
+    </div>
+
+    <!-- Carte formulaire -->
+    <div class="auth-card">
+      <div class="card-header">
+        <h2>Créer un compte organisation</h2>
+        <p>Paramétrez l’administrateur principal de l’espace.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Nom complet / Organisation -->
+        <div class="form-row2">
+          <div
+            class="form-field"
+            [class.has-error]="f['fullName'].touched && f['fullName'].invalid"
+          >
+            <label for="fullName">Nom complet</label>
+            <input
+              id="fullName"
+              type="text"
+              placeholder="Ex. Salma El Idrissi"
+              formControlName="fullName"
+            />
+            <div class="error" *ngIf="f['fullName'].touched && f['fullName'].errors?.['required']">
+              Le nom complet est obligatoire.
+            </div>
+          </div>
+
+          <div
+            class="form-field"
+            [class.has-error]="f['organisation'].touched && f['organisation'].invalid"
+          >
+            <label for="organisation">Organisation</label>
+            <input
+              id="organisation"
+              type="text"
+              placeholder="Ex. EMSI Casablanca"
+              formControlName="organisation"
+            />
+            <div
+              class="error"
+              *ngIf="f['organisation'].touched && f['organisation'].errors?.['required']"
+            >
+              Le nom de l’organisation est obligatoire.
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div
+          class="form-field"
+          [class.has-error]="f['email'].touched && f['email'].invalid"
+        >
+          <label for="email">E-mail professionnel</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="prenom.nom@organisation.com"
+            formControlName="email"
+          />
+          <div class="error" *ngIf="f['email'].touched && f['email'].errors?.['required']">
+            L’e-mail est obligatoire.
+          </div>
+          <div class="error" *ngIf="f['email'].touched && f['email'].errors?.['email']">
+            Format d’e-mail invalide.
+          </div>
+        </div>
+
+        <!-- MDP + confirmation -->
+        <div class="form-row2">
+          <div
+            class="form-field"
+            [class.has-error]="f['password'].touched && f['password'].invalid"
+          >
+            <label for="password">Mot de passe</label>
+            <div class="field-with-icon">
+              <input
+                id="password"
+                [type]="hidePassword ? 'password' : 'text'"
+                placeholder="Minimum 6 caractères"
+                formControlName="password"
+              />
+              <button
+                type="button"
+                class="icon-btn"
+                (click)="hidePassword = !hidePassword"
+              >
+                <span *ngIf="hidePassword">👁️</span>
+                <span *ngIf="!hidePassword">🙈</span>
+              </button>
+            </div>
+            <div class="error" *ngIf="f['password'].touched && f['password'].errors?.['required']">
+              Le mot de passe est obligatoire.
+            </div>
+            <div class="error" *ngIf="f['password'].touched && f['password'].errors?.['minlength']">
+              Minimum 6 caractères.
+            </div>
+          </div>
+
+          <div
+            class="form-field"
+            [class.has-error]="
+              f['confirmPassword'].touched &&
+              (f['confirmPassword'].invalid || form.errors?.['passwordMismatch'])
+            "
+          >
+            <label for="confirmPassword">Confirmer le mot de passe</label>
+            <div class="field-with-icon">
+              <input
+                id="confirmPassword"
+                [type]="hideConfirm ? 'password' : 'text'"
+                placeholder="Retapez le mot de passe"
+                formControlName="confirmPassword"
+              />
+              <button
+                type="button"
+                class="icon-btn"
+                (click)="hideConfirm = !hideConfirm"
+              >
+                <span *ngIf="hideConfirm">👁️</span>
+                <span *ngIf="!hideConfirm">🙈</span>
+              </button>
+            </div>
+            <div
+              class="error"
+              *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['required']"
+            >
+              La confirmation est obligatoire.
+            </div>
+            <div class="error" *ngIf="form.touched && form.errors?.['passwordMismatch']">
+              Les mots de passe ne correspondent pas.
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditions -->
+        <label
+          class="checkbox terms"
+          [class.has-error]="f['acceptTerms'].touched && f['acceptTerms'].invalid"
+        >
+          <input type="checkbox" formControlName="acceptTerms" />
+          <span></span>
+          J’accepte les
+          <a href="#" (click)="$event.preventDefault()">conditions d’utilisation</a>
+          et la politique de confidentialité.
+        </label>
+        <div class="error" *ngIf="f['acceptTerms'].touched && f['acceptTerms'].errors?.['required']">
+          Vous devez accepter les conditions.
+        </div>
+
+        <!-- Bouton -->
+        <button class="primary-btn" type="submit" [disabled]="loading">
+          <span *ngIf="!loading">Créer mon espace</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="switch-auth">
+        Vous avez déjà un compte ?
+        <a routerLink="/auth/login">Se connecter</a>
+      </div>
+    </div>
+  </div>
+</div>

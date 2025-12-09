@@ -1,0 +1,113 @@
+<div class="auth-page">
+  <div class="bg-overlay"></div>
+
+  <div class="auth-shell">
+    <!-- Bloc gauche : Branding -->
+    <div class="auth-side">
+      <div class="logo">Docs<span>Chain</span></div>
+      <h1>Connectez-vous à votre coffre-fort de documents</h1>
+      <p class="subtitle">
+        Plateforme de <strong>vérification de documents</strong> basée sur la
+        <strong>blockchain</strong>. Traçabilité, intégrité et confiance en un seul endroit.
+      </p>
+
+      <ul class="value-list">
+        <li>✔ Hashage cryptographique de vos PDFs</li>
+        <li>✔ Preuve d’authenticité infalsifiable</li>
+        <li>✔ Historique complet des vérifications</li>
+      </ul>
+
+      <div class="footer-note">
+        SmartDocs • Blockchain-Ready • 2025
+      </div>
+    </div>
+
+    <!-- Bloc droit : Formulaire -->
+    <div class="auth-card">
+      <div class="card-header">
+        <h2>Connexion</h2>
+        <p>Accédez à votre espace d’organisation.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Email -->
+        <div
+          class="form-field"
+          [class.has-error]="f['email'].touched && f['email'].invalid"
+        >
+          <label for="email">Adresse e-mail</label>
+          <div class="field-with-icon">
+            <input
+              id="email"
+              type="email"
+              placeholder="admin@organisation.com"
+              formControlName="email"
+            />
+            <span class="icon">@</span>
+          </div>
+          <div class="error" *ngIf="f['email'].touched && f['email'].errors?.['required']">
+            L’e-mail est obligatoire.
+          </div>
+          <div class="error" *ngIf="f['email'].touched && f['email'].errors?.['email']">
+            Format d’e-mail invalide.
+          </div>
+        </div>
+
+        <!-- Mot de passe -->
+        <div
+          class="form-field"
+          [class.has-error]="f['password'].touched && f['password'].invalid"
+        >
+          <label for="password">Mot de passe</label>
+          <div class="field-with-icon">
+            <input
+              id="password"
+              [type]="hidePassword ? 'password' : 'text'"
+              placeholder="Votre mot de passe sécurisé"
+              formControlName="password"
+            />
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="hidePassword = !hidePassword"
+              aria-label="Afficher / cacher le mot de passe"
+            >
+              <span *ngIf="hidePassword">👁️</span>
+              <span *ngIf="!hidePassword">🙈</span>
+            </button>
+          </div>
+          <div class="error" *ngIf="f['password'].touched && f['password'].errors?.['required']">
+            Le mot de passe est obligatoire.
+          </div>
+          <div class="error" *ngIf="f['password'].touched && f['password'].errors?.['minlength']">
+            Minimum 6 caractères.
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="form-row">
+          <label class="checkbox">
+            <input type="checkbox" formControlName="rememberMe" />
+            <span></span>
+            Rester connecté
+          </label>
+
+          <a class="link subtle" routerLink="/auth/forgot">
+            Mot de passe oublié ?
+          </a>
+        </div>
+
+        <!-- Bouton -->
+        <button class="primary-btn" type="submit" [disabled]="loading">
+          <span *ngIf="!loading">Se connecter</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="switch-auth">
+        Pas encore de compte ?
+        <a routerLink="/auth/register">Créer une organisation</a>
+      </div>
+    </div>
+  </div>
+</div>

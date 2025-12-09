@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenue</title>
+</head>
+
+<body style="font-family: Arial; color: #333;">
+<h2>Bonjour <span th:text="${firstName}"></span> <span th:text="${lastName}"></span>,</h2>
+
+<p>Bienvenue dans l’école <strong th:text="${ecoleName}"></strong> !</p>
+
+<p>Votre compte étudiant a été créé avec succès. Voici vos accès :</p>
+
+<ul>
+    <li><strong>Email institutionnel :</strong> <span th:text="${email}"></span></li>
+    <li><strong>Mot de passe :</strong> <span th:text="${password}"></span></li>
+</ul>
+
+<p>Adresse de l’école :</p>
+<p><strong th:text="${ecoleAddress}"></strong></p>
+
+<p>
+    Cordialement,<br>
+    <strong th:text="${ecoleName}"></strong>
+</p>
+</body>
+</html>
