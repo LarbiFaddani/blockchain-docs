@@ -1,6 +1,5 @@
 package com.blockchain.orgservice.config;
 
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,13 +14,13 @@ public class JwtConverter {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            String role = jwt.getClaimAsString("role"); // <- TON CLAIM
+            String role = jwt.getClaimAsString("role"); // claim "role"
 
             if (role == null) {
                 return List.of();
             }
 
-            // Spring attend "ROLE_ECOLE_ADMIN"
+            // => "ECOLE_ADMIN" devient "ROLE_ECOLE_ADMIN"
             String authority = "ROLE_" + role;
             return List.of(new SimpleGrantedAuthority(authority));
         });

@@ -1,0 +1,65 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="branding">
+      <div class="logo-circle">
+        <span class="logo-dot"></span>
+      </div>
+      <div class="brand-text">
+        <h1>Docs-Blockchain</h1>
+        <p>Portail d’authentification sécurisé</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <h2 class="title">Connexion</h2>
+      <p class="subtitle">Accédez à votre espace d’administration</p>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email professionnel</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="admin@organisation.ma">
+        <mat-error *ngIf="form.get('email')?.hasError('required')">
+          L'email est obligatoire
+        </mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">
+          Email invalide
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Mot de passe</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.get('password')?.hasError('required')">
+          Le mot de passe est obligatoire
+        </mat-error>
+      </mat-form-field>
+
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <button mat-raised-button color="primary" class="full-width" [disabled]="loading || form.invalid">
+        <mat-progress-spinner *ngIf="loading"
+                              diameter="20"
+                              mode="indeterminate">
+        </mat-progress-spinner>
+        <span *ngIf="!loading">Se connecter</span>
+      </button>
+
+      <p class="switch">
+        Pas encore de compte ?
+        <a routerLink="/auth/register">Créer une organisation</a>
+      </p>
+    </form>
+  </div>
+
+  <div class="auth-illustration">
+    <div class="grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="hero-text">
+      <h2>Traçabilité & Confiance</h2>
+      <p>Signature, horodatage, et vérification de documents sur une infrastructure blockchain.</p>
+    </div>
+  </div>
+</div>

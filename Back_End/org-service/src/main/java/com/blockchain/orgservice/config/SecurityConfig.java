@@ -55,7 +55,6 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // endpoints publics
                         .requestMatchers("/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs",
@@ -65,16 +64,16 @@ public class SecurityConfig {
 
                         // filières : seulement ECOLE_ADMIN
                         .requestMatchers("/filieres/**").hasRole("ECOLE_ADMIN")
-
-
-                        // étudiants : seulement ECOLE_ADMIN par ex
-                        .requestMatchers("/orgs/register-student").hasRole("ECOLE_ADMIN")
+                        .requestMatchers("/orgs/students").hasRole("ECOLE_ADMIN")
                         .requestMatchers("/student/**").hasRole("ECOLE_ADMIN")
 
+                        // 👉 ADMIN uniquement : gestion des écoles & entreprises
+                        .requestMatchers("/orgs/ecoles/**", "/orgs/entreprises/**").hasRole("ADMIN")
 
-                        // tout le reste → besoin d'être authentifié
+                        // besoins authentification
                         .anyRequest().authenticated()
                 )
+
                 .oauth2ResourceServer(oauth -> oauth
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
