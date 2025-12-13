@@ -1,0 +1,131 @@
+<section class="page">
+  <div class="page-head">
+    <div>
+      <h2>Filières</h2>
+      <p>Création, modification, suppression et gestion de l’accréditation.</p>
+    </div>
+
+    <button class="btn-primary" type="button" (click)="openCreate()">+ Ajouter</button>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-code">Code</th>
+            <th class="col-nom">Intitulé</th>
+            <th class="col-resp">Responsable</th>
+            <th class="col-desc">Description</th>
+            <th class="col-acc">Accréditation</th>
+            <th class="col-statut">Statut</th>
+            <th class="col-date">Début</th>
+            <th class="col-date">Fin</th>
+            <th class="right col-actions">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let f of filieres; trackBy: trackById">
+            <td class="strong">{{ safeText(f.code) }}</td>
+            <td class="strong2">{{ safeText(f.nom) }}</td>
+            <td>{{ safeText(f.nomResponsableFiliere) }}</td>
+
+            <td class="desc muted" [title]="safeText(f.description, '')">
+              {{ safeText(f.description) }}
+            </td>
+
+            <td class="muted">{{ getAccreditation(f) }}</td>
+            <td>
+              <span class="badge" [attr.data-status]="getStatut(f)">
+                {{ getStatut(f) }}
+              </span>
+            </td>
+            <td class="muted">{{ getDebut(f) }}</td>
+            <td class="muted">{{ getFin(f) }}</td>
+
+            <td class="right">
+              <div class="actions-row">
+                <button class="btn-ghost" type="button" (click)="openEdit(f)">Modifier</button>
+                <button class="btn-ghost danger" type="button" (click)="deleteFiliere(f)">Supprimer</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!filieres.length && !loading">
+            <td colspan="9" class="empty">Aucune filière.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-header">
+      <h3>{{ editMode ? 'Modifier une filière' : 'Ajouter une filière' }}</h3>
+      <button class="x" type="button" (click)="closeModal()">✕</button>
+    </div>
+
+    <form class="modal-body" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid">
+        <div class="field">
+          <label>Intitulé *</label>
+          <input formControlName="nom" placeholder="Informatique & Réseaux" />
+          <small *ngIf="form.get('nom')?.touched && form.get('nom')?.invalid">Champ requis</small>
+        </div>
+
+        <div class="field">
+          <label>Code *</label>
+          <input formControlName="code" placeholder="IIR" />
+          <small *ngIf="form.get('code')?.touched && form.get('code')?.invalid">Champ requis</small>
+        </div>
+
+        <div class="field span-2">
+          <label>Responsable</label>
+          <input formControlName="nomResponsableFiliere" placeholder="Pr. Samir" />
+        </div>
+
+        <div class="field span-2">
+          <label>Description</label>
+          <input formControlName="description" placeholder="..." />
+        </div>
+
+        <div class="field">
+          <label>Accréditation</label>
+          <input formControlName="accreditation" placeholder="État / ISO / ..." />
+        </div>
+
+        <div class="field">
+          <label>Statut</label>
+          <select formControlName="statutAccreditation">
+            <option value="">—</option>
+            <option *ngFor="let s of statutOptions" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Début accréditation</label>
+          <input type="date" formControlName="dateDebutAccreditation" />
+        </div>
+
+        <div class="field">
+          <label>Fin accréditation</label>
+          <input type="date" formControlName="dateFinAccreditation" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" (click)="closeModal()">Annuler</button>
+        <button class="btn-primary" type="submit" [disabled]="loading">
+          {{ editMode ? 'Enregistrer' : 'Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,65 @@
+<div class="profile-page">
+  <header class="profile-header">
+   
+  </header>
+
+  <div class="content">
+    <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+    <form [formGroup]="form" class="card">
+      <div class="grid">
+        <div class="field">
+          <label>Nom *</label>
+          <input formControlName="name" />
+        </div>
+
+        <div class="field">
+          <label>Ville</label>
+          <input formControlName="city" />
+        </div>
+
+        <div class="field span-2">
+          <label>Adresse</label>
+          <input formControlName="address" />
+        </div>
+
+        <div class="field">
+          <label>Email contact</label>
+          <input formControlName="emailContact" />
+        </div>
+
+        <div class="field">
+          <label>Numéro autorisation</label>
+          <input formControlName="numeroAutorisation" />
+        </div>
+
+        <div class="field">
+          <label>Type école</label>
+          <select formControlName="typeEcole">
+            <option value="PRIVEE">Privée</option>
+            <option value="PUBLIC">Publique</option>
+            <option value="SEMI_PUBLIC">Semi-public</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Année création</label>
+          <input type="date" formControlName="anneeCreation" />
+        </div>
+
+        <div class="field">
+          <label>Nombre d’étudiants</label>
+          <input type="number" formControlName="nombreEtudiants" />
+        </div>
+        
+      </div><button
+      class="btn-primary"
+      (click)="save()"
+      [disabled]="saving || loading"
+    >
+      Enregistrer
+    </button>
+    </form>
+  </div>
+</div>

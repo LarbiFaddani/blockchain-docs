@@ -3,12 +3,16 @@ package com.blockchain.authservice.services;
 import com.blockchain.authservice.dto.AuthResponse;
 import com.blockchain.authservice.dto.LoginRequest;
 import com.blockchain.authservice.dto.RegisterRequest;
+import com.blockchain.authservice.dto.UserStatusDto;
 import com.blockchain.authservice.enums.Role;
+import com.blockchain.authservice.exceptions.EmailAlreadyUsedException;
 import com.blockchain.authservice.models.User;
 import com.blockchain.authservice.repositories.UserRepository;
 import com.blockchain.authservice.security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -49,7 +53,7 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return new AuthResponse(token, user.getRole().name());
+        return new AuthResponse(token,user.getId(), user.getRole().name());
     }
 
     public Long registerOrgAdmin(RegisterRequest request) {
@@ -70,7 +74,7 @@ public class AuthService {
     public Long registerStudent(RegisterRequest req) {
 
         if (userRepository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email déjà utilisé !");
+            throw new EmailAlreadyUsedException("Email déjà utilisé !");
         }
 
         User user = new User();
@@ -103,6 +107,13 @@ public class AuthService {
 
         user.setEnabled(true);
         userRepository.save(user);
+    }
+    public List<UserStatusDto> getUsersStatus(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) return List.of();
+
+        return userRepository.findAllById(userIds).stream()
+                .map(u -> new UserStatusDto(u.getId(), u.isEnabled()))
+                .toList();
     }
 
 }

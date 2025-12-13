@@ -1,0 +1,344 @@
+<div class="register-page">
+  <div class="glow-secondary"></div>
+
+  <div class="register-card">
+    <!-- HEADER -->
+    <div class="register-header">
+      <!-- BRANDING -->
+      <h2 class="title">Créer une organisation</h2>
+      <p class="subtitle">
+        Suivez les étapes pour enregistrer votre organisation et créer le compte administrateur.
+      </p>
+    </div>
+
+    <!-- MESSAGES -->
+    <div *ngIf="successMessage" class="success-banner">
+      <span class="banner-icon icon-success"></span>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-banner">
+      <span class="banner-icon icon-error"></span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- STEPPER -->
+    <div class="stepper">
+      <div class="stepper-track">
+        <div
+          class="step"
+          [ngClass]="{'step--active': currentStep === 1, 'step--completed': currentStep > 1}"
+          (click)="goToStep(1)"
+        >
+          <div class="step__circle">
+            <span class="icon icon-business"></span>
+          </div>
+          <div class="step__label">Organisation</div>
+        </div>
+
+        <div
+          class="step"
+          [ngClass]="{'step--active': currentStep === 2, 'step--completed': currentStep > 2}"
+          (click)="goToStep(2)"
+        >
+          <div class="step__circle">
+            <span class="icon icon-layers"></span>
+          </div>
+          <div class="step__label">Détails</div>
+        </div>
+
+        <div
+          class="step"
+          [ngClass]="{'step--active': currentStep === 3}"
+          (click)="goToStep(3)"
+        >
+          <div class="step__circle">
+            <span class="icon icon-admin"></span>
+          </div>
+          <div class="step__label">Administrateur</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULAIRE -->
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <!-- STEP 1 -->
+      <div class="step-panel" *ngIf="currentStep === 1">
+        <div class="panel-title">Informations générales</div>
+
+        <!-- Type organisation -->
+        <div class="org-type-group">
+          <button
+            type="button"
+            class="org-type-btn"
+            [ngClass]="{'active': orgType === 'ECOLE'}"
+            (click)="form.get('orgType')?.setValue('ECOLE')"
+          >
+            Établissement d'enseignement
+          </button>
+          <button
+            type="button"
+            class="org-type-btn"
+            [ngClass]="{'active': orgType === 'ENTREPRISE'}"
+            (click)="form.get('orgType')?.setValue('ENTREPRISE')"
+          >
+            Entreprise / Organisation
+          </button>
+        </div>
+
+        <!-- Nom -->
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Nom de l'organisation*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-business"></span>
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="Entrez le nom"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Adresse + Ville -->
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Adresse*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-place"></span>
+              <input
+                type="text"
+                formControlName="address"
+                placeholder="123 Rue Example"
+              />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Ville*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-city"></span>
+              <input
+                type="text"
+                formControlName="city"
+                placeholder="Casablanca"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Email contact -->
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Email de contact*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-email"></span>
+              <input
+                type="email"
+                formControlName="emailContact"
+                placeholder="contact@organisation.ma"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 ECOLE -->
+      <div class="step-panel" *ngIf="currentStep === 2 && orgType === 'ECOLE'">
+        <div class="panel-title">Détails de l'établissement</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Numéro d'autorisation*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-badge"></span>
+              <input
+                type="text"
+                formControlName="numeroAutorisation"
+                placeholder="XXXX-XXXX"
+              />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Type d'école*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-school"></span>
+              <select formControlName="typeEcole">
+                <option value="">Sélectionnez...</option>
+                <option
+                  *ngFor="let opt of typeEcoleOptions"
+                  [value]="opt.value"
+                >
+                  {{ opt.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Année de création</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-calendar"></span>
+              <input
+                type="number"
+                formControlName="anneeCreation"
+                placeholder="2020"
+                min="1900"
+                max="2100"
+              />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Nombre d'étudiants</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-users"></span>
+              <input
+                type="number"
+                formControlName="nombreEtudiants"
+                placeholder="500"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 ENTREPRISE -->
+      <div
+        class="step-panel"
+        *ngIf="currentStep === 2 && orgType === 'ENTREPRISE'"
+      >
+        <div class="panel-title">Détails de l'entreprise</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">ICE*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-badge"></span>
+              <input
+                type="text"
+                formControlName="ice"
+                placeholder="000000000000000"
+              />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Secteur d'activité*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-work"></span>
+              <input
+                type="text"
+                formControlName="secteurActivite"
+                placeholder="Technologie, Finance..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Statut juridique</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-legal"></span>
+              <input
+                type="text"
+                formControlName="statutJuridique"
+                placeholder="SARL, SA..."
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-panel" *ngIf="currentStep === 3">
+        <div class="panel-title">Compte administrateur</div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Email administrateur*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-email"></span>
+              <input
+                type="email"
+                formControlName="adminEmail"
+                placeholder="admin@organisation.ma"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Mot de passe administrateur*</label>
+            <div class="input-wrapper">
+              <span class="input-icon icon-lock"></span>
+              <input
+                [type]="hideAdminPassword ? 'password' : 'text'"
+                formControlName="adminPassword"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="hideAdminPassword = !hideAdminPassword"
+              >
+                <span [ngClass]="hideAdminPassword ? 'icon-eye' : 'icon-eye-off'"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="step-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="previousStep()"
+          [disabled]="currentStep === 1 || loading"
+        >
+          Précédent
+        </button>
+
+        <span class="step-actions-spacer"></span>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          *ngIf="currentStep < 3"
+          (click)="nextStep()"
+          [disabled]="loading"
+        >
+          Suivant
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          *ngIf="currentStep === 3"
+          [disabled]="loading || form.invalid"
+        >
+          <span *ngIf="!loading">Créer l'organisation</span>
+          <mat-progress-spinner
+            *ngIf="loading"
+            diameter="20"
+            mode="indeterminate"
+          ></mat-progress-spinner>
+        </button>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        Déjà une organisation créée ?
+        <a routerLink="/auth/login">Se connecter</a>
+      </div>
+    </form>
+  </div>
+</div>

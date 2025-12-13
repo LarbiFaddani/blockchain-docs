@@ -1,0 +1,209 @@
+:host { display:block; min-height:100vh; background:#f8fafc; }
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+.layout{ display:flex; min-height:100vh; background:#f8fafc; }
+
+.sidebar{
+  position:fixed; left:0; top:0;
+  width:280px; height:100vh;
+ background: radial-gradient(circle at top left, #0f172a, #020617 55%);  padding:2rem 1.5rem;
+  z-index:100;
+  box-shadow:4px 0 24px rgba(0,0,0,.12);
+  display:flex; flex-direction:column;
+  overflow-y:auto;
+}
+
+.sidebar-logo{
+  display:flex; align-items:center; gap:1rem;
+  margin-bottom:2rem; padding-bottom:1.5rem;
+  border-bottom:1px solid rgba(148,163,184,.2);
+}
+
+.logo-icon{
+  width:54px; height:54px; border-radius:16px;
+  background:linear-gradient(135deg,#6366f1,#818cf8);
+  box-shadow:0 10px 30px rgba(99,102,241,.35), 0 0 0 4px rgba(99,102,241,.1);
+}
+
+.logo-text h2{ color:#fff; font-size:1.25rem; font-weight:800; margin:0; }
+.logo-text p{ color:#94a3b8; font-size:.8rem; margin:.25rem 0 0; }
+
+.nav-menu{ list-style:none; padding:0; margin:0; flex:1; }
+.nav-item{ margin-bottom:.5rem; }
+
+.nav-link{
+  display:flex; align-items:center;
+  padding:.875rem 1.125rem;
+  color:#cbd5e1; text-decoration:none;
+  border-radius:12px;
+  transition:.2s ease;
+  font-weight:600;
+}
+.nav-link:hover{ background:rgba(99,102,241,.12); color:#fff; transform:translateX(4px); }
+.nav-link.active{
+  background:linear-gradient(135deg,#6366f1,#818cf8);
+  color:#fff;
+  box-shadow:0 8px 16px rgba(99,102,241,.3);
+  transform:translateX(4px);
+}
+
+.main-content{
+  flex:1;
+  margin-left:280px;
+  min-height:100vh;
+  background:#f8fafc;
+  display:flex; flex-direction:column;
+}
+
+.header{
+  background:#fff;
+  padding:2rem 2.5rem;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid #e2e8f0;
+  position:sticky; top:0; z-index:50;
+}
+
+.header-left h1{
+  font-size:1.5rem;
+  font-weight:900;
+  margin:0 0 .25rem 0;
+  color:#0f172a;
+}
+.header-subtitle{ color:#64748b; font-weight:600; }
+
+.header-actions{ display:flex; gap:1rem; }
+
+.btn-ghost{
+  padding:.75rem 1.25rem;
+  border:2px solid #e2e8f0;
+  background:#fff;
+  color:#475569;
+  border-radius:10px;
+  font-weight:700;
+  text-decoration:none;
+}
+.btn-primary{
+  padding:.75rem 1.25rem;
+  border:none;
+  background:linear-gradient(135deg,#6366f1,#818cf8);
+  color:#fff;
+  border-radius:10px;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:0 4px 12px rgba(99,102,241,.25);
+}
+
+.content{ padding:2.5rem; flex:1; }
+
+/* ✅ Profil + logout (comme ton image) */
+.profile-box{
+  margin-top:auto;
+  padding-top:1.25rem;
+  border-top:1px solid rgba(148,163,184,.2);
+}
+
+.profile-top{
+  display:flex; align-items:center; gap:.6rem;
+  color:#cbd5e1;
+  font-weight:800;
+  margin-bottom:1rem;
+}
+.profile-icon{
+  width:18px; height:18px; border-radius:6px;
+  background:rgba(99,102,241,.35);
+}
+
+.profile-card{
+  display:flex; align-items:center; gap:.85rem;
+  padding:1rem;
+  border-radius:14px;
+  background:rgba(15,23,42,.55);
+  border:1px solid rgba(148,163,184,.15);
+  cursor:pointer;
+  transition:.2s ease;
+}
+.profile-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(99,102,241,.35);
+}
+
+.avatar{
+  width:44px; height:44px; border-radius:16px;
+  background:linear-gradient(135deg,#6366f1,#818cf8);
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900;
+}
+
+.profile-info{ min-width:0; }
+.profile-name{
+  color:#fff;
+  font-weight:900;
+  line-height:1.1;
+}
+.profile-email{
+  color:#94a3b8;
+  font-size:.85rem;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:170px;
+}
+
+.logout-btn{
+  width:100%;
+  margin-top:1rem;
+  padding:1rem;
+  border-radius:14px;
+  border:1px solid rgba(239,68,68,.35);
+  background:rgba(239,68,68,.08);
+  color:#ef4444;
+  font-weight:900;
+  cursor:pointer;
+  transition:.2s ease;
+}
+.logout-btn:hover{
+  background:rgba(239,68,68,.14);
+  transform:translateY(-1px);
+}
+
+.sidebar{
+  position:fixed; left:0; top:0;
+  width:280px; height:100vh;
+  padding:2rem 1.5rem;
+  z-index:100;
+  box-shadow:4px 0 24px rgba(0,0,0,.12);
+  display:flex; flex-direction:column;
+  overflow-y:auto;
+
+  /* base */
+  background:
+    radial-gradient(circle at top left, rgba(99,102,241,.18), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(129,140,248,.10), transparent 55%),
+    linear-gradient(180deg, #0b1220 0%, #050b17 100%);
+}
+
+/* ✅ overlay carreaux */
+.sidebar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.22;                 /* augmente à .30 si tu veux + visible */
+  background-image:
+    linear-gradient(rgba(148,163,184,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,.22) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ✅ pour que le contenu soit au-dessus du grid */
+.sidebar > *{
+  position: relative;
+}
+
+.chip-error{
+  background:rgba(239,68,68,.15);
+  color:#fca5a5;
+  border:1px solid rgba(239,68,68,.3);
+}

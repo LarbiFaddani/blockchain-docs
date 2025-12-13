@@ -2,6 +2,7 @@ package com.blockchain.authservice.controllers;
 
 import com.blockchain.authservice.dto.AuthResponse;
 import com.blockchain.authservice.dto.LoginRequest;
+import com.blockchain.authservice.dto.UserStatusDto;
 import com.blockchain.authservice.services.AuthService;
 import com.blockchain.authservice.dto.RegisterRequest;
 import com.blockchain.authservice.services.AuthService;
@@ -10,6 +11,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -66,7 +68,10 @@ public class AuthController {
         authService.enableAccount(id);
         return "Compte activé avec succès";
     }
-
+    @PostMapping("/users/status")
+    public List<UserStatusDto> getUsersStatus(@RequestBody List<Long> userIds) {
+        return authService.getUsersStatus(userIds);
+    }
 
 
 }

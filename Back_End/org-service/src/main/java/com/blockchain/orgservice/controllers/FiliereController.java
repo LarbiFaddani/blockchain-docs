@@ -40,4 +40,13 @@ public class FiliereController {
     public ResponseEntity<List<FiliereResponse>> getAllFilieres() {
         return ResponseEntity.ok(filiereService.getAllFilieres());
     }
+    @GetMapping("/by-ecole/{ecoleId}")
+    public ResponseEntity<List<FiliereResponse>> getFilieresByEcole(
+            @PathVariable Long ecoleId
+    ) {
+        return ResponseEntity.ok(
+                filiereService.getFilieresByEcoleId(ecoleId)
+        );
+    }
+
 }

@@ -1,0 +1,162 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Étudiants</h2>
+      <p>Recherche, création, modification et gestion des comptes.</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn-primary" type="button" (click)="openCreate()">+ Ajouter</button>
+    </div>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <div class="toolbar">
+    <input class="search" [formControl]="searchCtrl"
+           placeholder="Rechercher par nom, CIN, email, code étudiant..." />
+
+    <div class="meta">
+      <span class="pill">Total: {{ filtered.length }}</span>
+      <span class="pill" *ngIf="loading">Chargement…</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+        <tr>
+          <th>Nom</th>
+          <th>CIN</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Genre</th>
+          <th>Niveau</th>
+          <th>Code étudiant</th>
+          <th>Filière</th>
+          <th class="right">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr *ngFor="let s of filtered; trackBy: trackByStudentId">
+          <td class="strong">{{ s.lastName }} {{ s.firstName }}</td>
+          <td>{{ s.cin }}</td>
+          <td>{{ s.personalEmail }}</td>
+          <td>{{ s.phoneNumber || '-' }}</td>
+          <td>{{ s.genre || '-' }}</td>
+          <td>{{ s.level || '-' }}</td>
+          <td>{{ s.studentCode || '-' }}</td>
+          <td>{{ filiereNameById(s.filiereId) }}</td>
+
+          <td class="right">
+            <div class="actions-row">
+              <button class="btn-ghost" type="button" (click)="openEdit(s)">Modifier</button>
+
+              <button class="btn-ghost danger"
+                      type="button"
+                      (click)="disableAccount(s)"
+                      [disabled]="!canDisable(s) || loadingActionId === s.id">
+                Désactiver
+              </button>
+
+              <button class="btn-ghost ok"
+                      type="button"
+                      (click)="enableAccount(s)"
+                      [disabled]="!canEnable(s) || loadingActionId === s.id">
+                Activer
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="!filtered.length && !loading">
+          <td colspan="9" class="empty">Aucun étudiant.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-header">
+      <h3>{{ editMode ? 'Modifier un étudiant' : 'Ajouter un étudiant' }}</h3>
+      <button class="x" type="button" (click)="closeModal()">✕</button>
+    </div>
+
+    <form class="modal-body" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid">
+        <div class="field">
+          <label>Prénom *</label>
+          <input formControlName="firstName" placeholder="Prénom" />
+          <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">Champ requis</small>
+        </div>
+
+        <div class="field">
+          <label>Nom *</label>
+          <input formControlName="lastName" placeholder="Nom" />
+          <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">Champ requis</small>
+        </div>
+
+        <div class="field">
+          <label>CIN *</label>
+          <input formControlName="cin" placeholder="BW12345" />
+          <small *ngIf="form.get('cin')?.touched && form.get('cin')?.invalid">Champ requis</small>
+        </div>
+
+        <div class="field">
+          <label>Email personnel *</label>
+          <input formControlName="personalEmail" placeholder="prenom.nom@gmail.com" />
+          <small *ngIf="form.get('personalEmail')?.touched && form.get('personalEmail')?.invalid">Email invalide</small>
+        </div>
+
+        <div class="field">
+          <label>Niveau</label>
+          <input formControlName="level" placeholder="IIR / 1A / 2A ..." />
+        </div>
+
+        <div class="field">
+          <label>Téléphone</label>
+          <input formControlName="phoneNumber" placeholder="+212..." />
+        </div>
+
+        <div class="field">
+          <label>Genre</label>
+          <select formControlName="genre">
+            <option value="">—</option>
+            <option value="M">M</option>
+            <option value="F">F</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Date de naissance</label>
+          <input type="date" formControlName="birthDate" />
+        </div>
+
+        <div class="field span-2">
+          <label>Filière *</label>
+          <select formControlName="filiereId">
+            <option [ngValue]="null">— sélectionner —</option>
+            <option *ngFor="let f of filieres; trackBy: trackByFiliereId" [ngValue]="f.id">
+              {{ filiereLabel(f) }}
+            </option>
+          </select>
+          <small *ngIf="form.get('filiereId')?.touched && form.get('filiereId')?.invalid">Filière requise</small>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" (click)="closeModal()">Annuler</button>
+        <button class="btn-primary" type="submit" [disabled]="loading">
+          {{ editMode ? 'Enregistrer' : 'Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
