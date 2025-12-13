@@ -1,4 +1,5 @@
 package com.blockchain.orgservice.services;
+
 import com.blockchain.orgservice.client.AuthClient;
 import com.blockchain.orgservice.dto.*;
 import com.blockchain.orgservice.entities.Ecole;
@@ -7,17 +8,16 @@ import com.blockchain.orgservice.entities.Filiere;
 import com.blockchain.orgservice.repositories.EcoleRepository;
 import com.blockchain.orgservice.repositories.EtudiantRepository;
 import com.blockchain.orgservice.repositories.FiliereRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
-import java.time.LocalDate;
 import java.time.Year;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +29,9 @@ public class EtudiantService {
     private final AuthClient authClient;
     private final KafkaTemplate<String, StudentCreatedEvent> kafkaTemplate;
 
+    // -------------------------------------------------
+    // Create
+    // -------------------------------------------------
     @Transactional
     public StudentResponse createStudent(RegisterEtudiantRequest request) {
 
@@ -38,7 +41,7 @@ public class EtudiantService {
         Filiere filiere = filiereRepository.findById(request.getFiliereId())
                 .orElseThrow(() -> new RuntimeException("Filière non trouvée"));
 
-        if (!filiere.getEcole().getId().equals(ecole.getId())) {
+        if (!Objects.equals(filiere.getEcole().getId(), ecole.getId())) {
             throw new RuntimeException("Filière n'appartient pas à cette école");
         }
 
@@ -80,17 +83,13 @@ public class EtudiantService {
             etu.setPhoneNumber(request.getPhoneNumber());
             etu.setLevel(request.getLevel());
             etu.setPersonalEmail(request.getPersonalEmail());
+
             etu.setFiliere(filiere);
             etu.setUserId(userId);
             etu.setEcole(filiere.getEcole());
             etu.setStudentCode(generateStudentCode(ecole, filiere));
 
-            if (filiere.getStudents() != null) {
-                filiere.getStudents().add(etu);
-            }
-
             Etudiant saved = etudiantRepository.save(etu);
-            System.out.println("Etudiant sauvegardé avec ID : " + saved.getId());
 
             StudentCreatedEvent event = new StudentCreatedEvent();
             event.setStudentFirstName(saved.getFirstName());
@@ -100,59 +99,76 @@ public class EtudiantService {
             event.setGeneratedPassword(rawPassword);
             event.setEcoleName(ecole.getName());
             event.setEcoleAddress(ecole.getAddress());
-
             kafkaTemplate.send("student-created", event);
+
+            // ✅ enabled (optionnel) : on tente de le récupérer, sinon null
+            Boolean enabled = fetchEnabledSafe(saved.getUserId());
 
             return StudentResponse.builder()
                     .id(saved.getId())
+                    .userId(saved.getUserId())
                     .firstName(saved.getFirstName())
                     .lastName(saved.getLastName())
                     .cin(saved.getCin())
+                    .birthDate(saved.getBirthDate())
+                    .genre(saved.getGenre())
+                    .phoneNumber(saved.getPhoneNumber())
                     .personalEmail(saved.getPersonalEmail())
                     .ecoleId(ecole.getId())
                     .filiereId(filiere.getId())
                     .level(saved.getLevel())
+                    .studentCode(saved.getStudentCode())
                     .generatedPassword(rawPassword)
+                    .enabled(enabled) // ✅ AJOUT
                     .build();
 
+        } catch (FeignException e) {
+
+            if (e.status() == 409) {
+                throw new RuntimeException(
+                        "Impossible de créer le compte étudiant : email institutionnel déjà utilisé (" + institutionalEmail + ")"
+                );
+            }
+
+            if (e.status() == 400) {
+                throw new RuntimeException("Requête invalide vers auth-service (400) : " + e.getMessage());
+            }
+
+            if (e.status() == 401 || e.status() == 403) {
+                throw new RuntimeException(
+                        "Accès refusé à auth-service (status=" + e.status() + "). Vérifiez la sécurité / token inter-services."
+                );
+            }
+
+            throw new RuntimeException("Erreur auth-service (status=" + e.status() + ") : " + e.getMessage());
+
         } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new RuntimeException("Erreur lors de la création de l'étudiant : " + ex.getMessage());
+            throw new RuntimeException("Erreur lors de la création de l'étudiant : " + ex.getMessage(), ex);
         }
-
-}
-
-
+    }
 
     // -------------------------------------------------
     // Helpers
-    // --------------------------------------------------
-
+    // -------------------------------------------------
     private String generateInstitutionalEmail(Ecole ecole, String firstName, String lastName, int homonymeIndex) {
-
-        String domain="exemple.com" ;
+        String domain = "exemple.com";
         if (ecole.getEmailContact() != null && ecole.getEmailContact().contains("@")) {
             domain = ecole.getEmailContact().split("@")[1].trim();
         }
 
         String baseLocal = normalize(firstName) + "." + normalize(lastName);
+        String localPart = (homonymeIndex > 0) ? baseLocal + "." + homonymeIndex : baseLocal;
 
-        // si homonymeIndex > 0, on ajoute un suffixe
-        String localPart = (homonymeIndex > 0)
-                ? baseLocal + "." + homonymeIndex
-                : baseLocal;
-
-        return localPart+ "@" + domain;
+        return localPart + "@" + domain;
     }
 
     private String normalize(String input) {
         if (input == null) return "";
         String normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", ""); // supprime accents
-        normalized = normalized.replaceAll("[^a-zA-Z]", "."); // remplace autres caractères
-        normalized = normalized.replaceAll("\\.+", "."); // supprime doublons de points
-        normalized=normalized.toLowerCase();
-        return normalized;
+                .replaceAll("\\p{M}", "");
+        normalized = normalized.replaceAll("[^a-zA-Z]", ".");
+        normalized = normalized.replaceAll("\\.+", ".");
+        return normalized.toLowerCase();
     }
 
     private String generateRandomPassword() {
@@ -164,18 +180,39 @@ public class EtudiantService {
         return "STU-" + ecole.getId() + "-" + filiere.getId() + "-" + annee;
     }
 
-    public List<StudentResponse> getAllStudents() {
-        return etudiantRepository.findAll()
-                .stream()
-                .map(this::mapToStudentResponse)
-                .toList();
+    /**
+     * ✅ Récupère enabled pour un userId sans casser le flow si auth-service refuse.
+     */
+    private Boolean fetchEnabledSafe(Long userId) {
+        if (userId == null) return null;
+        try {
+            List<UserStatusDto> res = authClient.getUsersStatus(List.of(userId));
+            if (res == null || res.isEmpty()) return null;
+            return res.get(0).enabled();
+        } catch (FeignException ex) {
+            return null;
+        } catch (Exception ex) {
+            return null;
+        }
     }
+
+    // -------------------------------------------------
+    // Read
+    // -------------------------------------------------
+    public List<StudentResponse> getAllStudents() {
+        List<Etudiant> etudiants = etudiantRepository.findAll();
+        return mapListWithEnabled(etudiants);
+    }
+
     public StudentResponse getStudentByCin(String cin) {
         Etudiant etu = etudiantRepository.findByCin(cin)
                 .orElseThrow(() -> new RuntimeException("Étudiant non trouvé avec CIN : " + cin));
 
-        return mapToStudentResponse(etu);
+        // ✅ enabled
+        Boolean enabled = fetchEnabledSafe(etu.getUserId());
+        return mapToStudentResponse(etu, enabled);
     }
+
     public List<StudentResponse> findByName(String firstName, String lastName) {
 
         List<Etudiant> results;
@@ -190,10 +227,12 @@ public class EtudiantService {
             throw new RuntimeException("Veuillez fournir au moins un nom ou un prénom");
         }
 
-        return results.stream()
-                .map(this::mapToStudentResponse)
-                .toList();
+        return mapListWithEnabled(results);
     }
+
+    // -------------------------------------------------
+    // Update
+    // -------------------------------------------------
     @Transactional
     public StudentResponse updateStudent(Long id, RegisterEtudiantRequest request) {
 
@@ -224,21 +263,72 @@ public class EtudiantService {
 
         Etudiant updated = etudiantRepository.save(etudiant);
 
-        return mapToStudentResponse(updated);
+        // ✅ enabled
+        Boolean enabled = fetchEnabledSafe(updated.getUserId());
+        return mapToStudentResponse(updated, enabled);
     }
 
-    private StudentResponse mapToStudentResponse(Etudiant e) {
+    // -------------------------------------------------
+    // Mapping (avec enabled)
+    // -------------------------------------------------
+    private StudentResponse mapToStudentResponse(Etudiant e, Boolean enabled) {
         return StudentResponse.builder()
                 .id(e.getId())
+                .userId(e.getUserId())
                 .firstName(e.getFirstName())
                 .lastName(e.getLastName())
                 .cin(e.getCin())
+                .birthDate(e.getBirthDate())
+                .genre(e.getGenre())
+                .phoneNumber(e.getPhoneNumber())
+                .level(e.getLevel())
                 .personalEmail(e.getPersonalEmail())
+                .studentCode(e.getStudentCode())
                 .ecoleId(e.getEcole() != null ? e.getEcole().getId() : null)
                 .filiereId(e.getFiliere() != null ? e.getFiliere().getId() : null)
+                .enabled(enabled) // ✅ AJOUT
                 .build();
     }
 
+    /**
+     * ✅ Map liste étudiants + enabled en 1 seul appel auth-service (batch).
+     */
+    private List<StudentResponse> mapListWithEnabled(List<Etudiant> etudiants) {
 
+        List<Long> userIds = etudiants.stream()
+                .map(Etudiant::getUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, Boolean> enabledMap = new HashMap<>();
+
+        if (!userIds.isEmpty()) {
+            try {
+                List<UserStatusDto> statuses = authClient.getUsersStatus(userIds);
+                if (statuses != null) {
+                    enabledMap = statuses.stream()
+                            .collect(Collectors.toMap(UserStatusDto::userId, UserStatusDto::enabled, (a, b) -> a));
+                }
+            } catch (FeignException ex) {
+                // si 403 ou auth-service down -> enabled restera null
+            } catch (Exception ex) {
+                // idem
+            }
+        }
+
+        Map<Long, Boolean> finalEnabledMap = enabledMap;
+        return etudiants.stream()
+                .map(e -> mapToStudentResponse(e, finalEnabledMap.get(e.getUserId())))
+                .toList();
+    }
+
+    // -------------------------------------------------
+    // Read by school
+    // -------------------------------------------------
+    @Transactional(readOnly = true)
+    public List<StudentResponse> getStudentsByEcoleId(Long ecoleId) {
+        List<Etudiant> etudiants = etudiantRepository.findByEcole_Id(ecoleId);
+        return mapListWithEnabled(etudiants);
+    }
 }
-

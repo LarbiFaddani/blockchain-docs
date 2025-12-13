@@ -66,6 +66,9 @@ public class SecurityConfig {
                         .requestMatchers("/filieres/**").hasRole("ECOLE_ADMIN")
                         .requestMatchers("/orgs/students").hasRole("ECOLE_ADMIN")
                         .requestMatchers("/student/**").hasRole("ECOLE_ADMIN")
+                        .requestMatchers("/orgs/ecoles/**").hasRole("ECOLE_ADMIN")
+                        .requestMatchers("/orgs/ecoles/by-admin/**").hasRole("ECOLE_ADMIN")
+
 
                         // 👉 ADMIN uniquement : gestion des écoles & entreprises
                         .requestMatchers("/orgs/ecoles/**", "/orgs/entreprises/**").hasRole("ADMIN")

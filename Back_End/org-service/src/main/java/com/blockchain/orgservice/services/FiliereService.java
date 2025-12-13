@@ -87,4 +87,17 @@ public class FiliereService {
         response.setDateFinAccreditation(filiere.getDateFinAccreditation());
         return response;
     }
+    public List<FiliereResponse> getFilieresByEcoleId(Long ecoleId) {
+
+        // sécurité : vérifier que l’école existe
+        if (!ecoleRepository.existsById(ecoleId)) {
+            throw new RuntimeException("École non trouvée avec id = " + ecoleId);
+        }
+
+        return filiereRepository.findByEcoleId(ecoleId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
 }

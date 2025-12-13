@@ -1,65 +1,132 @@
 <div class="auth-page">
-  <div class="auth-card">
-    <div class="branding">
-      <div class="logo-circle">
-        <span class="logo-dot"></span>
+  <div class="glow-secondary"></div>
+
+  <div class="auth-shell">
+    <!-- PANEL GAUCHE : SLIDER + TEXTE -->
+    <div class="auth-visual">
+      <!-- SLIDER -->
+      <div class="slider">
+        <div
+          class="slide active"
+          style="background-image: url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80')"
+        ></div>
+        
+        <div
+          class="slide"
+          style="background-image: url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80')"
+        ></div>
       </div>
-      <div class="brand-text">
-        <h1>Docs-Blockchain</h1>
-        <p>Portail d’authentification sécurisé</p>
+
+      <!-- TEXTE -->
+      <div class="visual-content">
+        <span class="visual-kicker">Signature & Vérification</span>
+        <h2 class="visual-title">Traçabilité certifiée par la blockchain</h2>
+        <p class="visual-text">
+          Sécurisez, signez et horodatez vos documents critiques
+          sur une infrastructure distribuée et immuable.
+        </p>
+      </div>
+
+      <!-- INDICATEURS -->
+      <div class="visual-footer">
+        <span class="dot active" data-slide="0"></span>
+        <span class="dot" data-slide="1"></span>
+        <span class="dot" data-slide="2"></span>
       </div>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <h2 class="title">Connexion</h2>
-      <p class="subtitle">Accédez à votre espace d’administration</p>
+    <!-- PANEL DROIT : FORMULAIRE DE CONNEXION -->
+    <div class="auth-card">
+      <div class="branding">
+        <div class="logo-circle">
+          <div class="chain-icon"></div>
+        </div>
+        <div class="brand-text">
+          <h1>Docs-Blockchain</h1>
+          <p>Portail d'authentification sécurisé</p>
+        </div>
+      </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email professionnel</mat-label>
-        <input matInput formControlName="email" type="email" placeholder="admin@organisation.ma">
-        <mat-error *ngIf="form.get('email')?.hasError('required')">
-          L'email est obligatoire
-        </mat-error>
-        <mat-error *ngIf="form.get('email')?.hasError('email')">
-          Email invalide
-        </mat-error>
-      </mat-form-field>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <h2 class="title">Connexion</h2>
+        <p class="subtitle">Accédez à votre espace d'administration</p>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Mot de passe</mat-label>
-        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
-          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        <!-- EMAIL -->
+        <div class="form-group">
+          <label for="email">Email professionnel</label>
+          <div class="input-wrapper">
+            <span class="input-icon icon-email"></span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="votreemail@entreprise.com"
+            />
+          </div>
+
+          <div class="field-error"
+               *ngIf="form.get('email')?.hasError('required') && form.get('email')?.touched">
+            L'email est obligatoire
+          </div>
+          <div class="field-error"
+               *ngIf="form.get('email')?.hasError('email') && form.get('email')?.touched">
+            Email invalide
+          </div>
+        </div>
+
+        <!-- MOT DE PASSE -->
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <div class="input-wrapper">
+            <span class="input-icon icon-lock"></span>
+            <input
+              id="password"
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="hidePassword = !hidePassword; $event.preventDefault()"
+            >
+              <span [ngClass]="hidePassword ? 'icon-eye' : 'icon-eye-off'"></span>
+            </button>
+          </div>
+
+          <div class="field-error"
+               *ngIf="form.get('password')?.hasError('required') && form.get('password')?.touched">
+            Le mot de passe est obligatoire
+          </div>
+          <div class="field-error"
+               *ngIf="form.get('password')?.hasError('minlength') && form.get('password')?.touched">
+            Le mot de passe doit contenir au moins 6 caractères.
+          </div>
+        </div>
+
+        <!-- ERREUR GLOBALE BACKEND -->
+        <div class="error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <!-- BOUTON -->
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="loading || form.invalid"
+        >
+          <span *ngIf="!loading">Se connecter</span>
+          <mat-progress-spinner
+            *ngIf="loading"
+            diameter="22"
+            mode="indeterminate"
+          ></mat-progress-spinner>
         </button>
-        <mat-error *ngIf="form.get('password')?.hasError('required')">
-          Le mot de passe est obligatoire
-        </mat-error>
-      </mat-form-field>
 
-      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
-
-      <button mat-raised-button color="primary" class="full-width" [disabled]="loading || form.invalid">
-        <mat-progress-spinner *ngIf="loading"
-                              diameter="20"
-                              mode="indeterminate">
-        </mat-progress-spinner>
-        <span *ngIf="!loading">Se connecter</span>
-      </button>
-
-      <p class="switch">
-        Pas encore de compte ?
-        <a routerLink="/auth/register">Créer une organisation</a>
-      </p>
-    </form>
-  </div>
-
-  <div class="auth-illustration">
-    <div class="grid"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="hero-text">
-      <h2>Traçabilité & Confiance</h2>
-      <p>Signature, horodatage, et vérification de documents sur une infrastructure blockchain.</p>
+        <p class="switch">
+          Pas encore de compte ?
+          <a routerLink="/auth/register">Créer une organisation</a>        </p>
+      </form>
     </div>
   </div>
 </div>

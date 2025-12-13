@@ -1,0 +1,97 @@
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+<div class="sidebar-logo">
+  <div class="logo-icon" aria-hidden="true">
+    <div class="chain-icon"></div>
+  </div>
+
+  <div class="logo-text">
+    <h2>Docs-Blockchain</h2>
+    <p>Dashboard École</p>
+  </div>
+</div>
+
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a class="nav-link"
+           routerLink="/ecole/dashboard"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }">
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link"
+           routerLink="/ecole/students"
+           routerLinkActive="active">
+          <span>Étudiants</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link"
+           routerLink="/ecole/filieres"
+           routerLinkActive="active">
+          <span>Filières</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link"
+           routerLink="/ecole/profile"
+           routerLinkActive="active">
+          <span>Mon Profil</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- ✅ bloc profil + logout comme ton image -->
+    <div class="profile-box">
+      <div class="profile-top">
+        <div class="profile-icon"></div>
+        <div class="profile-title">Mon Profil</div>
+      </div>
+
+      <div class="profile-card" (click)="goProfile()" role="button" tabindex="0">
+        <div class="avatar">
+          {{ (ecoleName || 'E').charAt(0).toUpperCase() }}
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">{{ ecoleName }}</div>
+          <div class="profile-email">{{ ecole?.emailContact || '—' }}</div>
+        </div>
+      </div>
+
+      <button class="logout-btn" type="button" (click)="logout()">
+        Déconnexion
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="chip" *ngIf="loading">Chargement…</div>
+      <div class="chip chip-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <h1>{{ ecoleName }}</h1>
+        <p class="header-subtitle">{{ ecoleMetaLine || '—' }}</p>
+      </div>
+
+      <div class="header-actions">
+        <a class="btn-ghost" routerLink="/ecole/students">Gérer les étudiants</a>
+        <a class="btn-primary" routerLink="/ecole/filieres">Gérer les filières</a>
+      </div>
+    </header>
+
+    <!-- ✅ le contenu change ici (dashboard / students / profile) -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

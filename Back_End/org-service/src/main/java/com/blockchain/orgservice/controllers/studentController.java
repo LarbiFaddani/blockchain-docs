@@ -57,5 +57,12 @@ public class studentController {
         authClient.enableAccount(userId);
         return "Compte étudiant réactivé";
     }
+    @GetMapping("/by-ecole/{ecoleId}")
+    public List<StudentResponse> getStudentsByEcole(@PathVariable Long ecoleId) {
+        return etudiantService.getStudentsByEcoleId(ecoleId);
+    }
+
+
+
 
 }

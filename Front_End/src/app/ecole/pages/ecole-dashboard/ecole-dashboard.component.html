@@ -1,0 +1,67 @@
+<div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-title">Étudiants</div>
+    <div class="kpi-value">{{ totalStudents }}</div>
+    <div class="kpi-sub">Effectif enregistré</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-title">Filières</div>
+    <div class="kpi-value">{{ totalFilieres }}</div>
+    <div class="kpi-sub">Programmes actifs</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-title">Couverture</div>
+    <div class="kpi-value">
+      {{ totalFilieres ? (totalStudents / totalFilieres | number:'1.0-1') : 0 }}
+    </div>
+    <div class="kpi-sub">Étudiants / filière</div>
+  </div>
+</div>
+
+<div class="grid-charts">
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Répartition des étudiants par filière</h2>
+      <span class="panel-hint">Top {{ studentsByFiliere.length }}</span>
+    </div>
+
+    <div class="chart" *ngIf="studentsByFiliere.length; else emptyF">
+      <div class="bar" *ngFor="let it of studentsByFiliere; trackBy: trackByLabel">
+        <div class="bar-label" [title]="it.label">{{ it.label }}</div>
+        <div class="bar-track">
+          <div class="bar-fill" [style.width.%]="(it.value / maxValue(studentsByFiliere)) * 100"></div>
+        </div>
+        <div class="bar-value">{{ it.value }}</div>
+      </div>
+    </div>
+
+    <ng-template #emptyF>
+      <div class="empty">Aucune donnée filière.</div>
+    </ng-template>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Répartition des étudiants par niveau</h2>
+      <span class="panel-hint">Top {{ studentsByLevel.length }}</span>
+    </div>
+
+    <div class="chart" *ngIf="studentsByLevel.length; else emptyL">
+      <div class="bar" *ngFor="let it of studentsByLevel; trackBy: trackByLabel">
+        <div class="bar-label" [title]="it.label">{{ it.label }}</div>
+        <div class="bar-track">
+          <div class="bar-fill" [style.width.%]="(it.value / maxValue(studentsByLevel)) * 100"></div>
+        </div>
+        <div class="bar-value">{{ it.value }}</div>
+      </div>
+    </div>
+
+    <ng-template #emptyL>
+      <div class="empty">Aucun niveau renseigné.</div>
+    </ng-template>
+  </section>
+</div>

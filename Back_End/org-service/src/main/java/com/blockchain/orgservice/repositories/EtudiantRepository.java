@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface EtudiantRepository extends JpaRepository<Etudiant,Long> {
     Optional<Etudiant> findByCin(String cin);
+    List<Etudiant> findByEcole_Id(Long ecoleId);
 
     List<Etudiant> findByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndEcole(
             String firstName,
