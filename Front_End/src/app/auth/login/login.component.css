@@ -101,10 +101,6 @@ button[mat-raised-button] {
   text-decoration: none;
 }
 
-.switch a:hover {
-  text-decoration: underline;
-}
-
 /* Illustration droite */
 
 .auth-illustration {
@@ -172,4 +168,56 @@ button[mat-raised-button] {
   .auth-illustration {
     display: none;
   }
+}
+/* ============================================================
+   OVERRIDES ANGULAR MATERIAL - INPUTS BLANCS
+   ============================================================ */
+
+.auth-card mat-form-field .mat-mdc-text-field-wrapper {
+  color: #ffffff;
+}
+
+/* Texte saisi */
+.auth-card input.mat-mdc-input-element {
+  color: #ffffff !important;
+}
+
+/* Placeholder */
+.auth-card .mat-mdc-input-element::placeholder {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Label flottant */
+.auth-card .mdc-floating-label,
+.auth-card .mat-mdc-form-field-label {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Label flottant quand focus */
+.auth-card .mdc-floating-label--float-above {
+  color: #38bdf8 !important; /* bleu de ton design */
+}
+
+/* Icône suffix (eye icon) */
+.auth-card .mat-icon {
+  color: #ffffff !important;
+}
+
+/* Bordure outline */
+.auth-card .mdc-notched-outline__leading,
+.auth-card .mdc-notched-outline__notch,
+.auth-card .mdc-notched-outline__trailing {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Bordure focus */
+.auth-card .mdc-text-field--focused .mdc-notched-outline__leading,
+.auth-card .mdc-text-field--focused .mdc-notched-outline__notch,
+.auth-card .mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: #38bdf8 !important;
+}
+
+/* Message d’erreur */
+.auth-card mat-error {
+  color: #ff6b6b !important;
 }
