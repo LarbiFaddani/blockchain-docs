@@ -1,49 +1,119 @@
+/* ==================== LAYOUT PRINCIPAL ==================== */
 .profile-page {
   padding: 1.5rem;
   margin-top: -3%;
 }
 
-.profile-header {
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ==================== EN-TÊTE DE PAGE ==================== */
+.page-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.profile-header h1 {
-  font-size: 1.8rem;
-  font-weight: 800;
+.page-head h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.2;
 }
 
-.profile-header .meta {
+.page-head p {
+  margin: 0.25rem 0 0;
   color: #64748b;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
+.head-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* ==================== GRILLE DE CARTES ==================== */
+.two-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ==================== CARTES ==================== */
 .card {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
-  transition: box-shadow 0.3s ease;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
+/* En-tête de carte */
+.card-head {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(to bottom, #fafbfc, #ffffff);
+}
+
+.card-head h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Pills / Badges */
+.pill {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4338ca;
+  font-weight: 800;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.pill.ghost {
+  background: rgba(148, 163, 184, 0.15);
+  color: #475569;
+}
+
+/* ==================== FORMULAIRES ==================== */
 .grid {
+  padding: 1.5rem;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.75rem;
-  margin-bottom: 2rem;
+  gap: 1.25rem;
 }
 
+.pwd-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Champs de formulaire */
 .field {
   display: flex;
   flex-direction: column;
-  position: relative;
+  gap: 0.5rem;
 }
 
 .field.span-2 {
@@ -51,29 +121,35 @@
 }
 
 .field label {
-  font-weight: 600;
-  margin-bottom: 0.6rem;
-  color: #0f172a;
+  font-weight: 700;
+  color: #1e293b;
   font-size: 0.9rem;
-  letter-spacing: -0.01em;
+  display: block;
 }
 
+/* Inputs et selects */
 .field input,
 .field select {
-  padding: 0.95rem 1.1rem;
-  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
   border: 2px solid #e2e8f0;
   font-size: 0.95rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background: #ffffff;
   color: #1e293b;
   font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field input::placeholder {
+  color: #94a3b8;
 }
 
 .field input:hover,
 .field select:hover {
   border-color: #cbd5e1;
-  background: #fafbfc;
+  background: #f8fafc;
 }
 
 .field input:focus,
@@ -81,19 +157,58 @@
   outline: none;
   border-color: #667eea;
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.field input::placeholder {
+.field select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+/* Rangée d'input avec bouton */
+.input-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch;
+}
+
+.input-row input {
+  flex: 1;
+}
+
+/* Textes d'aide et erreurs */
+.sub {
+  margin-top: 0.25rem;
   color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
+.err {
+  margin-top: 0.3rem;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 0.85rem;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* ==================== BANNIÈRES ==================== */
 .banner {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   padding: 1rem 1.25rem;
   border-radius: 12px;
-  font-weight: 500;
+  font-weight: 700;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -125,19 +240,62 @@
   box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
 }
 
+/* ==================== BOUTONS ==================== */
+.btn-ghost {
+  padding: 0.75rem 1.25rem;
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn {
+  padding: 0.7rem 0.95rem;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
 .btn-primary {
-  width: 100%;
+  width: calc(100% - 3rem);
+  margin: 0 1.5rem 1.5rem;
   padding: 1rem 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: #ffffff;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  letter-spacing: -0.01em;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -148,7 +306,6 @@
 
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary:disabled {
@@ -157,18 +314,87 @@
   transform: none;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+/* ==================== ACTIONS ==================== */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.actions .btn-primary {
+  width: auto;
+  margin: 0;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 950px) {
+  .two-cards {
+    grid-template-columns: 1fr;
+  }
+  
   .grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
-
+  
+  .pwd-grid {
+    grid-template-columns: 1fr;
+  }
+  
   .field.span-2 {
     grid-column: span 1;
   }
+  
+  .page-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .head-actions {
+    justify-content: stretch;
+  }
+  
+  .head-actions button {
+    flex: 1;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .actions .btn-primary,
+  .actions .btn-ghost {
+    width: 100%;
+  }
+}
 
-  .card {
-    padding: 1.75rem;
+@media (max-width: 640px) {
+  .profile-page {
+    padding: 1rem;
+  }
+  
+  .page-head h2 {
+    font-size: 1.5rem;
+  }
+  
+  .card-head {
+    padding: 1rem 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .grid {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+  
+  .btn-primary {
+    width: calc(100% - 2.5rem);
+    margin: 0 1.25rem 1.25rem;
+  }
+  
+  .actions {
+    padding: 0 1.25rem 1.25rem;
   }
 }

@@ -1,0 +1,247 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Organisations</h2>
+      <p>Gérer les écoles et les entreprises (création + listing).</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn-ghost" type="button" (click)="loadAll()">Rafraîchir</button>
+      <button class="btn-primary" type="button" (click)="openCreate(tab)">+ Ajouter</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab" [class.active]="tab==='ECOLE'" type="button" (click)="setTab('ECOLE')">
+      Écoles
+    </button>
+    <button class="tab" [class.active]="tab==='ENTREPRISE'" type="button" (click)="setTab('ENTREPRISE')">
+      Entreprises
+    </button>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <!-- TABLE ECOLES -->
+  <div class="card" *ngIf="tab==='ECOLE'">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Ville</th>
+            <th>Email</th>
+            <th>Autorisation</th>
+            <th>Type</th>
+            <th>Année</th>
+            <th>Étudiants</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of pagedEcoles">
+            <td class="strong">{{ safe(e.name) }}</td>
+            <td class="muted">{{ safe(e.city) }}</td>
+            <td class="muted">{{ safe(e.emailContact) }}</td>
+            <td class="muted">{{ safe(e.numeroAutorisation) }}</td>
+            <td class="muted">{{ safe(e.typeEcole) }}</td>
+            <td class="muted">{{ safe(e.anneeCreation) }}</td>
+            <td class="muted">{{ safe(e.nombreEtudiants) }}</td>
+          </tr>
+
+          <tr *ngIf="!ecoles.length && !loading">
+            <td colspan="7" class="empty">Aucune école.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination ECOLES -->
+      <div class="pager" *ngIf="ecoles.length > pageSize">
+        <button class="pager-btn" type="button"
+                (click)="prevEcolesPage()"
+                [disabled]="ecolesPage === 1">
+          Précédent
+        </button>
+
+        <div class="pager-info">
+          Page <b>{{ ecolesPage }}</b> / {{ ecolesTotalPages }}
+        </div>
+
+        <button class="pager-btn" type="button"
+                (click)="nextEcolesPage()"
+                [disabled]="ecolesPage === ecolesTotalPages">
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE ENTREPRISES -->
+  <div class="card" *ngIf="tab==='ENTREPRISE'">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Ville</th>
+            <th>Email</th>
+            <th>ICE</th>
+            <th>Secteur</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let x of pagedEntreprises">
+            <td class="strong">{{ safe(x.name) }}</td>
+            <td class="muted">{{ safe(x.city) }}</td>
+            <td class="muted">{{ safe(x.emailContact) }}</td>
+            <td class="muted">{{ safe(x.ice) }}</td>
+            <td class="muted">{{ safe(x.secteurActivite) }}</td>
+            <td class="muted">{{ safe(x.statutJuridique) }}</td>
+          </tr>
+
+          <tr *ngIf="!entreprises.length && !loading">
+            <td colspan="6" class="empty">Aucune entreprise.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination ENTREPRISES -->
+      <div class="pager" *ngIf="entreprises.length > pageSize">
+        <button class="pager-btn" type="button"
+                (click)="prevEntreprisesPage()"
+                [disabled]="entreprisesPage === 1">
+          Précédent
+        </button>
+
+        <div class="pager-info">
+          Page <b>{{ entreprisesPage }}</b> / {{ entreprisesTotalPages }}
+        </div>
+
+        <button class="pager-btn" type="button"
+                (click)="nextEntreprisesPage()"
+                [disabled]="entreprisesPage === entreprisesTotalPages">
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREATE -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+
+<div class="modal" *ngIf="showModal">
+  <div class="modal-header">
+    <h3>Créer une organisation</h3>
+    <button class="x" type="button" (click)="closeModal()">✕</button>
+  </div>
+
+  <form class="modal-body" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid">
+      <!-- TYPE -->
+      <div class="field span-2">
+        <label>Type *</label>
+        <select formControlName="orgType">
+          <option value="ECOLE">ECOLE</option>
+          <option value="ENTREPRISE">ENTREPRISE</option>
+        </select>
+      </div>
+
+      <!-- ORG COMMON -->
+      <div class="field">
+        <label>Nom *</label>
+        <input formControlName="name" placeholder="EMSI Orangers / ABC SARL" />
+      </div>
+
+      <div class="field">
+        <label>Ville *</label>
+        <input formControlName="city" placeholder="Casablanca" />
+      </div>
+
+      <div class="field span-2">
+        <label>Adresse *</label>
+        <input formControlName="address" placeholder="Adresse complète" />
+      </div>
+
+      <div class="field span-2">
+        <label>Email contact *</label>
+        <input formControlName="emailContact" placeholder="contact@..." />
+      </div>
+
+      <div class="field">
+        <label>Email admin *</label>
+        <input formControlName="adminEmail" placeholder="admin@org.ma" />
+      </div>
+
+      <div class="field">
+        <label>Mot de passe *</label>
+        <input type="password" formControlName="adminPassword" placeholder="******" />
+      </div>
+
+      <div class="field span-2">
+        <label>Rôle *</label>
+        <input formControlName="adminRole" />
+      </div>
+
+      <!-- ECOLE -->
+      <ng-container *ngIf="isEcole()">
+        <div class="field span-2">
+          <div class="section-title">Informations École</div>
+        </div>
+
+        <div class="field">
+          <label>N° Autorisation *</label>
+          <input formControlName="numeroAutorisation" placeholder="AUT-XXXX" />
+        </div>
+
+        <div class="field">
+          <label>Type École *</label>
+          <select formControlName="typeEcole">
+            <option value="" disabled>Choisir…</option>
+            <option value="PUBLIC">PUBLIC</option>
+            <option value="SEMI_PUBLIC">SEMI_PUBLIC</option>
+            <option value="PRIVEE">PRIVEE</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Année création</label>
+          <input formControlName="anneeCreation"  type ="date" placeholder="2020" />
+        </div>
+
+        <div class="field">
+          <label>Nombre étudiants</label>
+          <input type="number" formControlName="nombreEtudiants" placeholder="1200" />
+        </div>
+      </ng-container>
+
+      <!-- ENTREPRISE -->
+      <ng-container *ngIf="!isEcole()">
+        <div class="field span-2">
+          <div class="section-title">Informations Entreprise</div>
+        </div>
+
+        <div class="field">
+          <label>ICE *</label>
+          <input formControlName="ice" placeholder="001234567000012" />
+        </div>
+
+        <div class="field">
+          <label>Secteur *</label>
+          <input formControlName="secteurActivite" placeholder="IT / Finance / ..." />
+        </div>
+
+        <div class="field span-2">
+          <label>Statut juridique</label>
+          <input formControlName="statutJuridique" placeholder="SARL / SA / ..." />
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" type="button" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" type="submit" [disabled]="loading">Créer</button>
+    </div>
+  </form>
+</div>

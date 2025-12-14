@@ -1,7 +1,7 @@
 <div class="layout">
   <!-- SIDEBAR -->
   <aside class="sidebar">
-  <div class="sidebar-logo">
+    <div class="sidebar-logo">
       <div class="logo-icon" aria-hidden="true">
         <span class="chain-icon"></span>
       </div>
@@ -9,12 +9,12 @@
         <h2>Docs-Blockchain</h2>
         <p>Dashboard Admin</p>
       </div>
-</div>
+    </div>
 
     <ul class="nav-menu">
       <li class="nav-item">
         <a class="nav-link"
-           routerLink="/ecole/dashboard"
+           routerLink="/admin/dashboard"
            routerLinkActive="active"
            [routerLinkActiveOptions]="{ exact: true }">
           <span>Dashboard</span>
@@ -22,50 +22,45 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link" routerLink="/admin/organisations" routerLinkActive="active">
+            <span>Organisations</span>
+            </a>
+        </li>
+
+      <li class="nav-item">
         <a class="nav-link"
-           routerLink="/ecole/students"
+           routerLink="/admin/users"
            routerLinkActive="active">
-          <span>Étudiants</span>
+          <span>Users</span>
         </a>
       </li>
 
       <li class="nav-item">
         <a class="nav-link"
-           routerLink="/ecole/filieres"
+           routerLink="/admin/filieres"
            routerLinkActive="active">
           <span>Filières</span>
         </a>
       </li>
 
-
       <li class="nav-item">
         <a class="nav-link"
-           routerLink="/ecole/documents"
-           routerLinkActive="active">
-          <span>Documents</span>
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link"
-           routerLink="/ecole/profile"
+           routerLink="/admin/profile"
            routerLinkActive="active">
           <span>Mon Profil</span>
         </a>
       </li>
     </ul>
 
-    <!-- ✅ bloc profil + logout comme ton image -->
+    <!-- Profil + logout -->
     <div class="profile-box">
-        
+   
 
       <div class="profile-card" (click)="goProfile()" role="button" tabindex="0">
-        <div class="avatar">
-          {{ (ecoleName || 'E').charAt(0).toUpperCase() }}
-        </div>
+        <div class="avatar">{{ adminInitials }}</div>
         <div class="profile-info">
-          <div class="profile-name">{{ ecoleName }}</div>
-          <div class="profile-email">{{ ecole?.emailContact || '—' }}</div>
+          <div class="profile-name">{{ adminName }}</div>
+          <div class="profile-email">{{ adminEmail }}</div>
         </div>
       </div>
 
@@ -84,17 +79,16 @@
   <main class="main-content">
     <header class="header">
       <div class="header-left">
-        <h1>{{ ecoleName }}</h1>
-        <p class="header-subtitle">{{ ecoleMetaLine || '—' }}</p>
+        <h1>Administration</h1>
+        <p class="header-subtitle">Gestion globale des organisations, étudiants et filières</p>
       </div>
 
       <div class="header-actions">
-        <a class="btn-ghost" routerLink="/ecole/students">Gérer les étudiants</a>
-        <a class="btn-primary" routerLink="/ecole/filieres">Gérer les filières</a>
+        <a class="btn-ghost" routerLink="/admin/organisations">Créer / Gérer organisations</a>
+        <a class="btn-primary" routerLink="/admin/users">Gérer utilisateurs</a>
       </div>
     </header>
 
-    <!-- ✅ le contenu change ici (dashboard / students / profile) -->
     <div class="content">
       <router-outlet></router-outlet>
     </div>

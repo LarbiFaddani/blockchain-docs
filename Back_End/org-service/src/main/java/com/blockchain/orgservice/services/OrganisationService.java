@@ -1,9 +1,7 @@
 package com.blockchain.orgservice.services;
 
 import com.blockchain.orgservice.client.AuthClient;
-import com.blockchain.orgservice.dto.RegisterOrgAdminRequest;
-import com.blockchain.orgservice.dto.RegisterOrganisationRequest;
-import com.blockchain.orgservice.dto.RegisterOrganisationResponse;
+import com.blockchain.orgservice.dto.*;
 import com.blockchain.orgservice.entities.Ecole;
 import com.blockchain.orgservice.entities.Entreprise;
 import com.blockchain.orgservice.entities.Organisation;
@@ -91,10 +89,24 @@ public class OrganisationService {
     //      ECOLES
 
     @Transactional(readOnly = true)
-    public List<Ecole> getAllEcoles() {
-        return ecoleRepository.findAll();
+    public List<EcoleDetailsResponse> getAllEcoles() {
+        return ecoleRepository.findAll()
+                .stream()
+                .map(e -> {
+                    EcoleDetailsResponse dto = new EcoleDetailsResponse();
+                    dto.setId(e.getId());
+                    dto.setName(e.getName());
+                    dto.setAddress(e.getAddress());
+                    dto.setCity(e.getCity());
+                    dto.setEmailContact(e.getEmailContact());
+                    dto.setNumeroAutorisation(e.getNumeroAutorisation());
+                    dto.setTypeEcole(e.getTypeEcole());
+                    dto.setAnneeCreation(e.getAnneeCreation() != null ? e.getAnneeCreation().toString() : null);
+                    dto.setNombreEtudiants(e.getNombreEtudiants());
+                    return dto;
+                })
+                .toList();
     }
-
     @Transactional(readOnly = true)
     public Ecole getEcoleById(Long id) {
         return ecoleRepository.findById(id)
@@ -122,8 +134,22 @@ public class OrganisationService {
     //      ENTREPRISES
 
     @Transactional(readOnly = true)
-    public List<Entreprise> getAllEntreprises() {
-        return entrepriseRepository.findAll();
+    public List<EntrepriseAdminDto> getAllEntreprises() {
+        return entrepriseRepository.findAll()
+                .stream()
+                .map(ent -> EntrepriseAdminDto.builder()
+                        .id(ent.getId())
+                        .name(ent.getName())
+                        .address(ent.getAddress())
+                        .city(ent.getCity())
+                        .emailContact(ent.getEmailContact())
+                        .adminUserId(ent.getAdminUserId())
+                        .ice(ent.getIce())
+                        .secteurActivite(ent.getSecteurActivite())
+                        .statutJuridique(ent.getStatutJuridique())
+                        .build()
+                )
+                .toList();
     }
 
     @Transactional(readOnly = true)

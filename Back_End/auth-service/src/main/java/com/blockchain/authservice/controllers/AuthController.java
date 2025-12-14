@@ -1,10 +1,7 @@
 package com.blockchain.authservice.controllers;
 
-import com.blockchain.authservice.dto.AuthResponse;
-import com.blockchain.authservice.dto.LoginRequest;
-import com.blockchain.authservice.dto.UserStatusDto;
+import com.blockchain.authservice.dto.*;
 import com.blockchain.authservice.services.AuthService;
-import com.blockchain.authservice.dto.RegisterRequest;
 import com.blockchain.authservice.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
@@ -73,5 +70,21 @@ public class AuthController {
         return authService.getUsersStatus(userIds);
     }
 
+    @GetMapping("/users/all")
+    public List<UserAdminDto> getAllUsers() {
+        return authService.getAllUsers();
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserAdminDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(authService.getUserById(id));
+    }
+
+    @PutMapping("/users/{id}/password")
+    public ResponseEntity<String> changePassword(@PathVariable Long id,
+                                                 @RequestBody ChangePasswordRequest req) {
+        authService.changePassword(id, req);
+        return ResponseEntity.ok("Mot de passe modifié avec succès");
+    }
 
 }

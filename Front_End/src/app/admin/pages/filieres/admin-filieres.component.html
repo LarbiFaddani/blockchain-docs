@@ -1,0 +1,217 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Filières</h2>
+      <p>Gérer le catalogue des filières (création, modification, suppression).</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn-ghost" type="button" (click)="loadAll()">Rafraîchir</button>
+      <button class="btn-primary" type="button" (click)="openCreate()">+ Ajouter</button>
+    </div>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="field">
+      <label>Recherche</label>
+      <input
+        [(ngModel)]="q"
+        (ngModelChange)="applyFilters(true)"
+        placeholder="Nom, code, description, ecoleId..."
+      />
+    </div>
+
+    <div class="field">
+      <label>École</label>
+      <select [(ngModel)]="ecoleFilter" (change)="applyFilters(true)">
+        <option value="">Toutes</option>
+        <option *ngFor="let e of ecoles" [ngValue]="e.id">
+          {{ safe(e.name) }} ({{ safe(e.city) }})
+        </option>
+      </select>
+      <div class="sub">Filtrer par école</div>
+    </div>
+
+    <div class="field">
+      <label>Taille page</label>
+      <select [(ngModel)]="pageSize" (change)="applyFilters(true)">
+        <option [ngValue]="6">6</option>
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="table-wrapper" *ngIf="!loading; else sk">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 29%;">Nom</th>
+            <th style="width: 10%;">Code</th>
+            <th style="width: 24%;">École</th>
+            <th style="width: 14%;">Accrédit.</th>
+            <th style="width: 18%;">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let f of pagedFilieres">
+            <td class="strong">
+              {{ safe(f.nom) }}
+              <div class="sub">
+                ID: {{ f.id }}
+                <span class="sep">•</span>
+                ÉcoleID: {{ safe(getEcoleId(f), '—') }}
+              </div>
+            </td>
+
+            <td class="muted">{{ safe(f.code) }}</td>
+
+            <td class="muted">
+              {{ ecoleNameForFiliere(f) }}
+            </td>
+
+            <td>
+              <span
+                class="badge"
+                [class.badge-off]="safe(f.statutAccreditation) === 'EXPIREE'"
+              >
+                {{ safe(f.statutAccreditation, '—') }}
+              </span>
+            </td>
+
+            <td>
+              <div class="row-actions">
+                <button class="btn-mini ghost" type="button" (click)="openEdit(f)">
+                  Modifier
+                </button>
+
+                <button
+                  class="btn-mini danger"
+                  type="button"
+                  [disabled]="actionLoadingId === f.id"
+                  (click)="remove(f)"
+                >
+                  {{ actionLoadingId === f.id ? 'Suppression…' : 'Supprimer' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!filteredFilieres.length && !loading">
+            <td colspan="5" class="empty">Aucune filière.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #sk>
+      <div class="skeleton">Chargement…</div>
+    </ng-template>
+
+    <!-- Pager -->
+    <div class="pager" *ngIf="filteredFilieres.length">
+      <div class="pager-info">
+        {{ pageRangeLabel }}
+        <span class="sep">|</span>
+        Page {{ page }} / {{ totalPages }}
+      </div>
+
+      <div class="pager-actions">
+        <button class="pager-btn" type="button" (click)="prevPage()" [disabled]="page <= 1">
+          Précédent
+        </button>
+        <button class="pager-btn" type="button" (click)="nextPage()" [disabled]="page >= totalPages">
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+
+<div class="modal" *ngIf="showModal">
+  <div class="modal-header">
+    <h3>{{ editing ? 'Modifier filière' : 'Créer une filière' }}</h3>
+    <button class="x" type="button" (click)="closeModal()">✕</button>
+  </div>
+
+  <form class="modal-body" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid">
+      <div class="field span-2">
+        <div class="section-title">Informations Filière</div>
+      </div>
+
+      <div class="field">
+        <label>Nom *</label>
+        <input formControlName="nom" placeholder="Ex: Informatique" />
+      </div>
+
+      <div class="field">
+        <label>Code *</label>
+        <input formControlName="code" placeholder="Ex: IIR" />
+      </div>
+
+      <div class="field span-2">
+        <label>Description</label>
+        <input formControlName="description" placeholder="Description courte..." />
+      </div>
+
+      <div class="field">
+        <label>École *</label>
+        <select formControlName="ecoleId">
+          <option value="">-- Choisir --</option>
+          <option *ngFor="let e of ecoles" [ngValue]="e.id">
+            {{ safe(e.name) }} ({{ safe(e.city) }})
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Responsable</label>
+        <input formControlName="nomResponsableFiliere" placeholder="Nom responsable" />
+      </div>
+
+      <div class="field">
+        <label>Accréditation</label>
+        <input formControlName="accreditation" placeholder="Etat / Organisme ..." />
+      </div>
+
+      <div class="field">
+        <label>Statut</label>
+        <select formControlName="statutAccreditation">
+          <option value="">—</option>
+          <!-- ✅ aligné sur enum backend -->
+          <option value="ACCREDITE">ACCREDITE</option>
+          <option value="En_Cours">EN_COURS</option>
+          <option value="EXPIREE">EXPIREE</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Début</label>
+        <input type="date" formControlName="dateDebutAccreditation" />
+      </div>
+
+      <div class="field">
+        <label>Fin</label>
+        <input type="date" formControlName="dateFinAccreditation" />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" type="button" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" type="submit" [disabled]="loading">
+        {{ editing ? 'Enregistrer' : 'Créer' }}
+      </button>
+    </div>
+  </form>
+</div>
