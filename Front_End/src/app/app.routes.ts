@@ -14,6 +14,7 @@ import { ForbiddenComponent } from './shared/forbidden/forbidden.component';
 
 import { authGuard } from './auth/guards/auth.guard';
 import { roleGuard } from './auth/guards/role.guard';
+import { EcoleDocumentComponent } from './ecole/pages/document/ecole-document.component';
 
 export const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
@@ -30,6 +31,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: EcoleDashboardComponent },
       { path: 'students', component: EcoleStudentsComponent },
       { path: 'filieres', component: EcoleFilieresComponent },
+      { path: 'documents', component: EcoleDocumentComponent },
       { path: 'profile', component: EcoleProfileComponent },
     ]
   },

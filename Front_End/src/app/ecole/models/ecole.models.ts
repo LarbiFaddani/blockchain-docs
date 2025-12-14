@@ -112,3 +112,18 @@ export interface UpdateEcolePayload {
   anneeCreation?: number;
   nombreEtudiants?: number;
 }
+export interface DocumentModel {
+  id: number;
+
+  orgId: number;        // école
+  userId: number;       // étudiant
+
+  docType: string;     // Diplôme, Attestation, Relevé...
+  filePath: string;    // URL ou chemin backend
+
+  hash: string;        // hash SHA-256
+  blockchainTx?: string;
+
+  createdAt: string;   // ISO date (Instant → string)
+}
+

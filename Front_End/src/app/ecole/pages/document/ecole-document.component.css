@@ -1,0 +1,470 @@
+/* ==================== PAGE ==================== */
+
+.documents-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-head {
+  margin-bottom: 1.5rem;
+}
+
+.page-head h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.page-head p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* ==================== BANNERS ==================== */
+
+.banner {
+  padding: 0.95rem 1.1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.banner.success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+.banner.error {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #dc2626;
+}
+
+/* ==================== GRID ==================== */
+
+.verification-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+/* ==================== PANEL ==================== */
+
+.panel {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 2.2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.panel-header {
+  margin-bottom: 1.8rem;
+}
+
+.panel-header h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.35rem;
+}
+
+.panel-header p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* ==================== FORM ==================== */
+
+.doc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 0.95rem;
+  color: #0f172a;
+  transition: all 0.25s ease;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
+}
+
+.field select:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.hint {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* ==================== UPLOAD ==================== */
+
+.upload-zone {
+  background: #f8fafc;
+  border: 3px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 2.8rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-zone:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.06);
+}
+
+.upload-icon {
+  font-size: 3.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.upload-zone h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.3rem;
+}
+
+.upload-zone p {
+  color: #64748b;
+  margin-bottom: 1.1rem;
+}
+
+.file-types {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.file-input {
+  display: none;
+}
+
+.btn-upload {
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+  transition: all 0.25s ease;
+}
+
+.btn-upload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(102, 126, 234, 0.5);
+}
+
+/* ==================== FILE PREVIEW ==================== */
+
+.uploaded-file {
+  display: none;
+  margin-top: 1.3rem;
+  padding: 1.2rem;
+  background: #f8fafc;
+  border-radius: 16px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.uploaded-file.show {
+  display: flex;
+}
+
+.file-icon-display {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.file-info h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.file-info p {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.btn-remove {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-remove:hover {
+  background: #fecaca;
+}
+
+/* ==================== SUBMIT ==================== */
+
+.btn-verify {
+  display: none;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+  transition: all 0.3s ease;
+}
+
+.btn-verify.show {
+  display: block;
+}
+
+.btn-verify:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(16, 185, 129, 0.55);
+}
+
+.btn-verify:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==================== FORM ERROR ==================== */
+
+.form-error {
+  margin-top: 0.5rem;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ==================== RESULTS ==================== */
+
+.results-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 4.5rem;
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+.results-empty h3 {
+  font-size: 1.35rem;
+  color: #475569;
+}
+
+/* Loading */
+
+.loading {
+  display: none;
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.loading.show {
+  display: block;
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 4px solid #e2e8f0;
+  border-top-color: #667eea;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.2rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status */
+
+.status-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.status-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: #ffffff;
+}
+
+.status-icon.verified {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.45);
+}
+
+.status-icon.invalid {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 0 28px rgba(239, 68, 68, 0.45);
+}
+
+.status-header h2 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.status-header h2.verified {
+  color: #10b981;
+}
+
+.status-header h2.invalid {
+  color: #ef4444;
+}
+
+.status-header p {
+  color: #64748b;
+}
+
+/* Info cards */
+
+.info-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: right;
+  word-break: break-all;
+}
+
+.mono {
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+/* Badge */
+
+.blockchain-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  background: rgba(102, 126, 234, 0.12);
+  border: 1px solid rgba(102, 126, 234, 0.25);
+  border-radius: 20px;
+  color: #667eea;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Reset */
+
+.btn-new {
+  width: 100%;
+  margin-top: 1.4rem;
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-new:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 1024px) {
+  .verification-container {
+    grid-template-columns: 1fr;
+  }
+}

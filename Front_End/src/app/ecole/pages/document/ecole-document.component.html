@@ -1,0 +1,187 @@
+<div class="documents-page">
+  <div class="page-head">
+    <h2>Documents</h2>
+    <p>Enregistrer et vérifier des documents sur la blockchain</p>
+  </div>
+
+  <!-- BANNERS -->
+  <div class="banner success" *ngIf="successMessage">{{ successMessage }}</div>
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="verification-container">
+    <!-- =================== LEFT: FORM + UPLOAD =================== -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>📤 Upload Document</h2>
+        <p>Choisissez l’étudiant, le type du document, puis uploadez le fichier</p>
+      </div>
+
+      <form class="doc-form" [formGroup]="form" (ngSubmit)="submitCreateDocument()">
+        <!-- Filière -->
+        <div class="field">
+          <label>Filière</label>
+          <select formControlName="filiereId" [disabled]="isLoadingFilieres">
+            <option value="">— Sélectionner une filière —</option>
+            <option *ngFor="let f of filieres" [value]="f.id">{{ f.code }}</option>
+          </select>
+          <small class="hint" *ngIf="isLoadingFilieres">Chargement des filières…</small>
+          <small class="hint" *ngIf="!isLoadingFilieres">Le choix de la filière filtre la liste des étudiants.</small>
+        </div>
+
+        <!-- Étudiant -->
+        <div class="field">
+          <label>Étudiant</label>
+          <select
+            formControlName="studentId"
+            [disabled]="isLoadingStudents || studentsFiltered.length === 0">
+            <option value="">— Sélectionner un étudiant —</option>
+            <option *ngFor="let s of studentsFiltered" [value]="s.id">
+              {{ s.lastName }} {{ s.firstName }} — {{ s.cin }}
+            </option>
+          </select>
+
+          <small class="hint" *ngIf="isLoadingStudents">Chargement des étudiants…</small>
+          <small class="hint" *ngIf="!isLoadingStudents && studentsFiltered.length === 0">
+            Sélectionne une filière pour afficher les étudiants.
+          </small>
+        </div>
+
+        <!-- Type document -->
+        <div class="field">
+          <label>Type de document</label>
+          <input
+            type="text"
+            formControlName="docType"
+            placeholder="Ex: Attestation de scolarité, Diplôme, Relevé de notes..." />
+        </div>
+
+        <!-- Upload zone -->
+        <div class="upload-zone" (click)="fileInput.click()">
+          <div class="upload-icon">📄</div>
+          <h3>Glissez-déposez votre fichier</h3>
+          <p>ou cliquez pour parcourir</p>
+
+          <button
+            type="button"
+            class="btn-upload"
+            (click)="fileInput.click(); $event.stopPropagation()">
+            Choisir un fichier
+          </button>
+
+          <p class="file-types">PDF, DOCX, PNG, JPG (Max 10MB)</p>
+
+          <input
+            #fileInput
+            type="file"
+            class="file-input"
+            accept=".pdf,.docx,.png,.jpg,.jpeg"
+            (change)="onFileSelected($event)" />
+        </div>
+
+        <!-- File preview -->
+        <div class="uploaded-file" [class.show]="selectedFile">
+          <div class="file-icon-display">📋</div>
+          <div class="file-info">
+            <h4>{{ selectedFile?.name }}</h4>
+            <p>{{ selectedFile ? (selectedFile.size / 1024 / 1024 | number:'1.1-2') + ' MB' : '' }}</p>
+          </div>
+          <button type="button" class="btn-remove" (click)="removeFile()">✕</button>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn-verify"
+          [class.show]="selectedFile && !isSubmitting"
+          [disabled]="isSubmitting || form.invalid || !selectedFile">
+          {{ isSubmitting ? 'Traitement…' : '⛓️ Enregistrer sur la blockchain' }}
+        </button>
+
+        <div class="form-error" *ngIf="form.touched && form.invalid">
+          Merci de sélectionner une filière, un étudiant et un type de document.
+        </div>
+      </form>
+    </div>
+
+    <!-- =================== RIGHT: RESULTS =================== -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>📊 Résultats</h2>
+        <p>Informations de vérification blockchain</p>
+      </div>
+
+      <!-- Empty -->
+      <div class="results-empty" *ngIf="!selectedFile && !isSubmitting && !result">
+        <div class="empty-icon">🔍</div>
+        <h3>En attente</h3>
+        <p>Choisissez un étudiant et uploadez un document pour commencer</p>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading" [class.show]="isSubmitting">
+        <div class="spinner"></div>
+        <p>Enregistrement et transaction blockchain…</p>
+      </div>
+
+      <!-- Results -->
+      <div class="results-content" [class.show]="!!result && !isSubmitting" *ngIf="result">
+        <div class="status-header">
+          <div class="status-icon" [ngClass]="result.valid ? 'verified' : 'invalid'">
+            {{ result.valid ? '✓' : '✕' }}
+          </div>
+          <h2 [ngClass]="result.valid ? 'verified' : 'invalid'">
+            {{ result.valid ? 'Document enregistré' : 'Échec' }}
+          </h2>
+          <p>{{ result.message }}</p>
+        </div>
+
+        <div class="info-card" *ngIf="result.meta">
+          <div class="info-row">
+            <span class="info-label">Étudiant</span>
+            <span class="info-value">{{ result.meta.studentName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">CIN</span>
+            <span class="info-value">{{ result.meta.studentCin }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Filière</span>
+            <span class="info-value">{{ result.meta.filiereName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Type Document</span>
+            <span class="info-value">{{ result.meta.docType }}</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-row">
+            <span class="info-label">Transaction</span>
+            <span class="info-value mono">{{ result.blockchainTx || '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Bloc</span>
+            <span class="info-value">{{ result.blockNumber ?? '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Réseau</span>
+            <span class="info-value">
+              <span class="blockchain-badge">
+                <span>⛓️</span>
+                <span>{{ result.network || 'Ganache' }}</span>
+              </span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Timestamp</span>
+            <span class="info-value">{{ result.timestamp || '—' }}</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-new" (click)="resetVerification()">
+          🔄 Nouveau document
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
