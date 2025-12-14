@@ -74,6 +74,7 @@ public class FiliereService {
                 .collect(Collectors.toList());
     }
 
+
     private FiliereResponse toResponse(Filiere filiere) {
         FiliereResponse response = new FiliereResponse();
         response.setId(filiere.getId());
@@ -85,6 +86,11 @@ public class FiliereService {
         response.setStatutAccreditation(filiere.getStatutAccreditation());
         response.setDateDebutAccreditation(filiere.getDateDebutAccreditation());
         response.setDateFinAccreditation(filiere.getDateFinAccreditation());
+        if (filiere.getEcole() != null) {
+            response.setEcoleId(filiere.getEcole().getId());
+            response.setEcoleName(filiere.getEcole().getName());
+        }
+
         return response;
     }
     public List<FiliereResponse> getFilieresByEcoleId(Long ecoleId) {

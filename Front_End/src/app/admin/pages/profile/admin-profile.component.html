@@ -1,0 +1,113 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Mon Profil</h2>
+      <p>Consultez vos informations et changez votre mot de passe.</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn-ghost" type="button" (click)="loadMe()" [disabled]="loading">
+        Rafraîchir
+      </button>
+    </div>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <!-- Content -->
+  <div class="grid">
+    <!-- Card: Infos -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Informations</h3>
+        <span class="pill" *ngIf="me">ID #{{ me.id }}</span>
+      </div>
+
+      <div class="card-body" *ngIf="!loading; else sk1">
+        <div class="info-row">
+          <div class="label">Email</div>
+          <div class="value">{{ safe(me?.email) }}</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">Rôle</div>
+          <div class="value">{{ safe(me?.role) }}</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">Statut</div>
+          <div class="value">
+            <span class="badge" [class.badge-off]="me?.enabled === false">
+              {{ badgeLabel(me?.enabled) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #sk1>
+        <div class="skeleton">Chargement…</div>
+      </ng-template>
+    </div>
+
+    <!-- Card: Change password -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Changer le mot de passe</h3>
+        <span class="pill ghost">Sécurité</span>
+      </div>
+
+      <form class="card-body" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label>Ancien mot de passe *</label>
+          <div class="input-row">
+            <input [type]="showOld ? 'text' : 'password'" formControlName="currentPassword" placeholder="••••••" />
+            <button class="icon-btn" type="button" (click)="showOld = !showOld">{{ showOld ? 'Masquer' : 'Voir' }}</button>
+          </div>
+          <div class="err" *ngIf="form.get('currentPassword')?.touched && form.get('currentPassword')?.invalid">
+            Ancien mot de passe requis (min 6).
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Nouveau mot de passe *</label>
+          <div class="input-row">
+            <input [type]="showNew ? 'text' : 'password'" formControlName="newPassword" placeholder="Min 8 caractères" />
+            <button class="icon-btn" type="button" (click)="showNew = !showNew">{{ showNew ? 'Masquer' : 'Voir' }}</button>
+          </div>
+          <div class="sub">Conseil : utilisez lettres + chiffres + symbole.</div>
+          <div class="err" *ngIf="form.get('newPassword')?.touched && form.get('newPassword')?.invalid">
+            Nouveau mot de passe requis (min 8).
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Confirmer nouveau mot de passe *</label>
+          <div class="input-row">
+            <input
+              [type]="showConfirm ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="Répéter le nouveau mot de passe"
+            />
+            <button class="icon-btn" type="button" (click)="showConfirm = !showConfirm">
+              {{ showConfirm ? 'Masquer' : 'Voir' }}
+            </button>
+          </div>
+
+          <div class="err" *ngIf="form.touched && form.errors?.['passwordsNotMatch']">
+            La confirmation ne correspond pas.
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-ghost" type="button" (click)="form.reset()" [disabled]="saving">
+            Annuler
+          </button>
+          <button class="btn-primary" type="submit" [disabled]="saving || loading">
+            {{ saving ? 'Enregistrement…' : 'Mettre à jour' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

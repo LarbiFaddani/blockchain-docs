@@ -1,0 +1,128 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Utilisateurs</h2>
+      <p>Gestion de tous les types d’utilisateurs (ADMIN, ECOLE_ADMIN, ENTREPRISE_ADMIN, ETUDIANT).</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn-ghost" type="button" (click)="load()">Rafraîchir</button>
+    </div>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="field">
+      <label>Recherche</label>
+      <input
+        [(ngModel)]="q"
+        (ngModelChange)="applyFilters(true)"
+        placeholder="Email, rôle, id, nom..."
+      />
+      <div class="sub">Astuce : tu peux chercher par ID (ex: 12)</div>
+    </div>
+
+    <div class="field">
+      <label>Rôle</label>
+      <select [(ngModel)]="roleFilter" (change)="applyFilters(true)">
+        <option value="">Tous</option>
+        <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Statut</label>
+      <select [(ngModel)]="statusFilter" (change)="applyFilters(true)">
+        <option value="">Tous</option>
+        <option value="enabled">Actifs</option>
+        <option value="disabled">Désactivés</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <div class="table-wrapper" *ngIf="!loading; else sk">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:90px;">ID</th>
+            <th class="col-email">Email</th>
+            <th class="col-role">Rôle</th>
+            <th style="width:140px;">Statut</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let u of pagedUsers">
+            <td class="muted">{{ u.id }}</td>
+
+            <td class="strong col-email">
+              {{ safe(u.email) }}
+              <div class="sub" *ngIf="u.displayName">{{ u.displayName }}</div>
+            </td>
+
+            <td class="muted col-role">{{ safe(u.role) }}</td>
+
+            <td>
+              <span class="badge" [class.badge-off]="u.enabled === false">
+                {{ u.enabled === false ? 'Désactivé' : 'Actif' }}
+              </span>
+            </td>
+
+            <td class="col-actions">
+              <div class="row-actions">
+                <button
+                  class="btn-mini ghost"
+                  type="button"
+                  (click)="copy(u.email)"
+                  [disabled]="!u.email"
+                >
+                  Copier
+                </button>
+
+                <button
+                  class="btn-mini"
+                  type="button"
+                  (click)="toggle(u)"
+                  [disabled]="actionLoadingId === u.id"
+                >
+                  {{ u.enabled === false ? 'Activer' : 'Désactiver' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!pagedUsers.length">
+            <td colspan="5" class="empty">Aucun utilisateur.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #sk>
+      <div class="skeleton">Chargement…</div>
+    </ng-template>
+
+    <!-- Pagination -->
+    <div class="pager" *ngIf="!loading">
+      <div class="pager-info">{{ pageRangeLabel }}</div>
+
+      <div class="pager-actions">
+        <button class="pager-btn" type="button" (click)="prevPage()" [disabled]="page <= 1">
+          Précédent
+        </button>
+        <span class="pager-info">
+          Page {{ page }} <span class="sep">/</span> {{ totalPages }}
+        </span>
+        <button class="pager-btn" type="button" (click)="nextPage()" [disabled]="page >= totalPages">
+          Suivant
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

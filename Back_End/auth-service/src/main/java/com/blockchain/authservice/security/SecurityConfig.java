@@ -3,7 +3,7 @@ package com.blockchain.authservice.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // ✅ IMPORTANT (pas jakarta.ws.rs.HttpMethod)
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -30,6 +30,12 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * JWT claim:
+     *  - claim name = "role"
+     *  - prefix = "ROLE_"
+     * Exemple: role=ECOLE_ADMIN => authority=ROLE_ECOLE_ADMIN
+     */
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter conv = new JwtGrantedAuthoritiesConverter();
@@ -57,10 +63,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf -> csrf.disable());
-
         http.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> auth
+
+                // Swagger / OpenAPI
                 .requestMatchers(
                         "/swagger-ui.html", "/swagger-ui/**",
                         "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml"
@@ -73,18 +80,18 @@ public class SecurityConfig {
                         "/auth/register-org-admin"
                 ).permitAll()
 
-                // Protégé (ECOLE_ADMIN ou ADMIN)
-                .requestMatchers(HttpMethod.POST, "/auth/register-student")
-                .hasAnyRole("ECOLE_ADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/users/status")
-                .hasAnyRole("ECOLE_ADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/auth/disable/**", "/auth/enable/**")
-                .hasAnyRole("ECOLE_ADMIN", "ADMIN")
+                // Protégé : création étudiant + gestion status (ECOLE_ADMIN ou ADMIN)
+                .requestMatchers(HttpMethod.POST, "/auth/register-student").hasAnyRole("ECOLE_ADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/users/status").hasAnyRole("ECOLE_ADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/auth/disable/**", "/auth/enable/**").hasAnyRole("ECOLE_ADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/users/all").hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/auth/users/**").hasRole("ADMIN")
+//                .requestMatchers(HttpMethod.PUT, "/auth/users/**/password").hasRole("ADMIN")
 
                 .anyRequest().authenticated()
         );
 
-        // ✅ Resource Server JWT
         http.oauth2ResourceServer(oauth -> oauth
                 .jwt(jwt -> jwt
                         .decoder(jwtDecoder())

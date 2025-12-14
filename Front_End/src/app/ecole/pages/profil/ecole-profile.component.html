@@ -1,65 +1,151 @@
 <div class="profile-page">
-  <header class="profile-header">
-   
-  </header>
-
   <div class="content">
+    <div class="page-head">
+      <div>
+        <h2>Profil École</h2>
+        <p>Mettre à jour vos informations et gérer votre sécurité.</p>
+      </div>
+
+      <div class="head-actions">
+        <button class="btn-ghost" type="button" (click)="loadProfile()" [disabled]="loading">
+          Rafraîchir
+        </button>
+      </div>
+    </div>
+
     <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
     <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
 
-    <form [formGroup]="form" class="card">
-      <div class="grid">
-        <div class="field">
-          <label>Nom *</label>
-          <input formControlName="name" />
+    <div class="two-cards">
+      <!-- ================== CARD 1 : INFOS ÉCOLE ================== -->
+      <form [formGroup]="form" class="card">
+        <div class="card-head">
+          <h3>Informations École</h3>
+          <span class="pill" *ngIf="ecole">ID #{{ ecole.id }}</span>
         </div>
 
-        <div class="field">
-          <label>Ville</label>
-          <input formControlName="city" />
+        <div class="grid">
+          <div class="field">
+            <label>Nom *</label>
+            <input formControlName="name" />
+          </div>
+
+          <div class="field">
+            <label>Ville</label>
+            <input formControlName="city" />
+          </div>
+
+          <div class="field span-2">
+            <label>Adresse</label>
+            <input formControlName="address" />
+          </div>
+
+          <div class="field">
+            <label>Email contact</label>
+            <input formControlName="emailContact" />
+          </div>
+
+          <div class="field">
+            <label>Numéro autorisation</label>
+            <input formControlName="numeroAutorisation" />
+          </div>
+
+          <div class="field">
+            <label>Type école</label>
+            <select formControlName="typeEcole">
+              <option value="PRIVEE">Privée</option>
+              <option value="PUBLIC">Publique</option>
+              <option value="SEMI_PUBLIC">Semi-public</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Année création</label>
+            <input type="date" formControlName="anneeCreation" />
+          </div>
+
+          <div class="field">
+            <label>Nombre d’étudiants</label>
+            <input type="number" formControlName="nombreEtudiants" />
+          </div>
         </div>
 
-        <div class="field span-2">
-          <label>Adresse</label>
-          <input formControlName="address" />
+        <button class="btn-primary" type="button" (click)="save()" [disabled]="saving || loading">
+          {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </form>
+
+      <!-- ================== CARD 2 : MOT DE PASSE ================== -->
+      <form [formGroup]="pwdForm" class="card" (ngSubmit)="changePassword()">
+        <div class="card-head">
+          <h3>Changer le mot de passe</h3>
+          <span class="pill ghost">Sécurité</span>
         </div>
 
-        <div class="field">
-          <label>Email contact</label>
-          <input formControlName="emailContact" />
+        <div class="grid pwd-grid">
+          <div class="field span-2">
+            <label>Mot de passe actuel *</label>
+            <div class="input-row">
+              <input
+                [type]="showCurrent ? 'text' : 'password'"
+                formControlName="currentPassword"
+                placeholder="••••••"
+              />
+              <button class="icon-btn" type="button" (click)="showCurrent = !showCurrent">
+                {{ showCurrent ? 'Masquer' : 'Voir' }}
+              </button>
+            </div>
+            <div class="err" *ngIf="pwdForm.get('currentPassword')?.touched && pwdForm.get('currentPassword')?.invalid">
+              Mot de passe actuel requis (min 6).
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Nouveau mot de passe *</label>
+            <div class="input-row">
+              <input
+                [type]="showNew ? 'text' : 'password'"
+                formControlName="newPassword"
+                placeholder="Min 8 caractères"
+              />
+              <button class="icon-btn" type="button" (click)="showNew = !showNew">
+                {{ showNew ? 'Masquer' : 'Voir' }}
+              </button>
+            </div>
+            <div class="sub">Conseil : lettres + chiffres + symbole.</div>
+            <div class="err" *ngIf="pwdForm.get('newPassword')?.touched && pwdForm.get('newPassword')?.invalid">
+              Nouveau mot de passe requis (min 8).
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Confirmer *</label>
+            <div class="input-row">
+              <input
+                [type]="showConfirm ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="Répéter le nouveau mot de passe"
+              />
+              <button class="icon-btn" type="button" (click)="showConfirm = !showConfirm">
+                {{ showConfirm ? 'Masquer' : 'Voir' }}
+              </button>
+            </div>
+
+            <div class="err" *ngIf="pwdForm.touched && pwdForm.errors?.['passwordsNotMatch']">
+              La confirmation ne correspond pas.
+            </div>
+          </div>
         </div>
 
-        <div class="field">
-          <label>Numéro autorisation</label>
-          <input formControlName="numeroAutorisation" />
+        <div class="actions">
+          <button class="btn-ghost" type="button" (click)="resetPwdForm()" [disabled]="savingPwd">
+            Annuler
+          </button>
+          <button class="btn-primary" type="submit" [disabled]="savingPwd || loading">
+            {{ savingPwd ? 'Enregistrement…' : 'Mettre à jour' }}
+          </button>
         </div>
-
-        <div class="field">
-          <label>Type école</label>
-          <select formControlName="typeEcole">
-            <option value="PRIVEE">Privée</option>
-            <option value="PUBLIC">Publique</option>
-            <option value="SEMI_PUBLIC">Semi-public</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Année création</label>
-          <input type="date" formControlName="anneeCreation" />
-        </div>
-
-        <div class="field">
-          <label>Nombre d’étudiants</label>
-          <input type="number" formControlName="nombreEtudiants" />
-        </div>
-        
-      </div><button
-      class="btn-primary"
-      (click)="save()"
-      [disabled]="saving || loading"
-    >
-      Enregistrer
-    </button>
-    </form>
+      </form>
+    </div>
   </div>
 </div>

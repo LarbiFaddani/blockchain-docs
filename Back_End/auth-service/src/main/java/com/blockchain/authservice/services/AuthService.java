@@ -1,9 +1,6 @@
 package com.blockchain.authservice.services;
 
-import com.blockchain.authservice.dto.AuthResponse;
-import com.blockchain.authservice.dto.LoginRequest;
-import com.blockchain.authservice.dto.RegisterRequest;
-import com.blockchain.authservice.dto.UserStatusDto;
+import com.blockchain.authservice.dto.*;
 import com.blockchain.authservice.enums.Role;
 import com.blockchain.authservice.exceptions.EmailAlreadyUsedException;
 import com.blockchain.authservice.models.User;
@@ -13,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AuthService {
@@ -116,4 +114,50 @@ public class AuthService {
                 .toList();
     }
 
+    public List<UserAdminDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(u -> new UserAdminDto(
+                        u.getId(),
+                        u.getEmail(),
+                        u.getRole(),
+                        u.isEnabled()
+                ))
+                .toList();
+    }
+
+    public UserAdminDto getUserById(Long userId) {
+        User u = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec ID : " + userId));
+
+        return new UserAdminDto(
+                u.getId(),
+                u.getEmail(),
+                u.getRole(),
+                u.isEnabled()
+        );
+    }
+
+
+    public void changePassword(Long userId, ChangePasswordRequest req) {
+        if (req == null) throw new RuntimeException("Requête invalide");
+        if (req.getCurrentPassword() == null || req.getCurrentPassword().isBlank()) {
+            throw new RuntimeException("Mot de passe actuel obligatoire");
+        }
+        if (req.getNewPassword() == null || req.getNewPassword().length() < 6) {
+            throw new RuntimeException("Nouveau mot de passe invalide (min 6)");
+        }
+        if (Objects.equals(req.getCurrentPassword(), req.getNewPassword())) {
+            throw new RuntimeException("Le nouveau mot de passe doit être différent");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec ID : " + userId));
+
+        if (!passwordEncoder.matches(req.getCurrentPassword(), user.getPassword())) {
+            throw new RuntimeException("Mot de passe actuel incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userRepository.save(user);
+    }
 }

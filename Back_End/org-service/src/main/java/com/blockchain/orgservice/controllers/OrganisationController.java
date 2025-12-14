@@ -46,11 +46,10 @@ public class OrganisationController {
     }
 
 //=========ECOLE=======================
-    @GetMapping("/ecoles")
-    public ResponseEntity<List<Ecole>> getAllEcoles() {
-        List<Ecole> ecoles = organisationService.getAllEcoles();
-        return ResponseEntity.ok(ecoles);
-    }
+@GetMapping("/ecoles")
+public ResponseEntity<List<EcoleDetailsResponse>> getAllEcoles() {
+    return ResponseEntity.ok(organisationService.getAllEcoles());
+}
 
     @GetMapping("/ecoles/{id}")
     public ResponseEntity<Ecole> getEcoleById(@PathVariable Long id) {
@@ -92,11 +91,9 @@ public class OrganisationController {
     // ========= ENTREPRISES =========
 
     @GetMapping("/entreprises")
-    public ResponseEntity<List<Entreprise>> getAllEntreprises() {
-        List<Entreprise> entreprises = organisationService.getAllEntreprises();
-        return ResponseEntity.ok(entreprises);
+    public ResponseEntity<List<EntrepriseAdminDto>> getAllEntreprises() {
+        return ResponseEntity.ok(organisationService.getAllEntreprises());
     }
-
     @GetMapping("/entreprises/{id}")
     public ResponseEntity<Entreprise> getEntrepriseById(@PathVariable Long id) {
         Entreprise ent = organisationService.getEntrepriseById(id);

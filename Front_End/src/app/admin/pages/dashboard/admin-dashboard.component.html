@@ -1,0 +1,116 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Vue d’ensemble</h2>
+      <p>Suivi global des organisations et des utilisateurs.</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn-ghost" type="button" (click)="load()">Rafraîchir</button>
+    </div>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-title">Écoles</div>
+      <div class="kpi-value">{{ kpiEcoles }}</div>
+      <div class="kpi-sub">Organisations type ECOLE</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-title">Entreprises</div>
+      <div class="kpi-value">{{ kpiEntreprises }}</div>
+      <div class="kpi-sub">Organisations type ENTREPRISE</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-title">Étudiants</div>
+      <div class="kpi-value">{{ kpiStudents }}</div>
+      <div class="kpi-sub">Comptes ETUDIANT</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-title">Filières</div>
+      <div class="kpi-value">{{ kpiFilieres }}</div>
+      <div class="kpi-sub">Catalogue total</div>
+    </div>
+  </div>
+
+  <!-- Two columns -->
+  <div class="grid">
+    <!-- Latest schools -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Écoles</h3>
+        <span class="pill">{{ kpiEcoles }} total</span>
+      </div>
+
+      <div class="table-wrapper" *ngIf="!loading; else sk1">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Ville</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of topEcoles(6)">
+              <td class="strong">{{ safe(e.name) }}</td>
+              <td class="muted">{{ safe(e.city) }}</td>
+              <td class="muted">{{ safe(e.emailContact) }}</td>
+            </tr>
+            <tr *ngIf="!ecoles.length">
+              <td class="empty" colspan="3">Aucune école.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #sk1>
+        <div class="skeleton">Chargement…</div>
+      </ng-template>
+    </div>
+
+    <!-- Latest students -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Étudiants</h3>
+        <span class="pill">{{ kpiStudents }} total</span>
+      </div>
+
+      <div class="table-wrapper" *ngIf="!loading; else sk2">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>CIN</th>
+              <th>Compte</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of topStudents(6)">
+              <td class="strong">{{ safe(s.firstName) }} {{ safe(s.lastName) }}</td>
+              <td class="muted">{{ safe(s.cin) }}</td>
+              <td>
+                <span class="badge" [class.badge-off]="s.enabled === false">
+                  {{ s.enabled === false ? 'Désactivé' : 'Actif' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="!students.length">
+              <td class="empty" colspan="3">Aucun étudiant.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #sk2>
+        <div class="skeleton">Chargement…</div>
+      </ng-template>
+    </div>
+  </div>
+</div>

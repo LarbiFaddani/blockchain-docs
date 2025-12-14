@@ -17,4 +17,8 @@ public class FiliereResponse {
     private StatutAccreditation statutAccreditation;
     private LocalDate dateDebutAccreditation;
     private LocalDate dateFinAccreditation;
+    private Long ecoleId;
+
+    // retourner le nom
+    private String ecoleName;
 }
