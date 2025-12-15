@@ -9,8 +9,10 @@ import com.blockchain.docsservice.utils.FileUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -70,50 +72,60 @@ public class DocumentService {
     }
 
     /**
-     * Vérification d'un document par son hash.
-     * Source de vérité = smart contract.
+     * Vérification complète :
+     * - recalcul hash depuis le PDF
+     * - comparaison avec hash fourni
+     * - vérification on-chain
+     * - enrichissement DB
      */
-    public VerifyResponse verifyDocument(String hash) {
+    public VerifyResponse verifyDocument(MultipartFile file) {
+
+        if (file == null || file.isEmpty()) {
+            return new VerifyResponse(false, "Fichier manquant", null, null, null, null);
+        }
+
+        final String hash;
+        try {
+            hash = hashService.computeHash(file.getBytes());
+        } catch (Exception e) {
+            return new VerifyResponse(false, "Erreur calcul hash", null, null, null, null);
+        }
 
         boolean onChain;
         try {
             onChain = blockchainService.isDocumentRegistered(hash);
         } catch (Exception e) {
-            return new VerifyResponse(
-                    false,
-                    "Erreur lors de la vérification sur le smart contract",
-                    null,
-                    null,
-                    null
-            );
+            return new VerifyResponse(false, "Erreur smart contract", null, null, null, null);
         }
 
         if (!onChain) {
-            // ❌ Si non enregistré on-chain, le document n'est pas authentique
-            return new VerifyResponse(
-                    false,
-                    "Document non trouvé dans le smart contract (non authentique)",
-                    null,
-                    null,
-                    null
-            );
+            return new VerifyResponse(false, "Document non authentique", null, null, null, null);
         }
 
-        // ✅ Il est bien sur la blockchain → on enrichit avec les infos locales si possible
         return documentRepository.findByHash(hash)
                 .map(doc -> new VerifyResponse(
                         true,
-                        "Document authentique (présent dans le smart contract et dans la base locale)",
+                        "Document authentique",
                         doc.getOrgId(),
                         doc.getUserId(),
-                        doc.getDocType()
+                        doc.getDocType(),
+                        "/api/docs/download/" + hash   // ✅ lien public contrôlé
                 ))
                 .orElseGet(() -> new VerifyResponse(
                         true,
-                        "Document authentique (présent dans le smart contract) mais non retrouvé dans la base locale",
+                        "Authentique (blockchain) – fichier non stocké localement",
+                        null,
                         null,
                         null,
                         null
                 ));
+    }
+
+
+    public List<Document> getDocumentsByEcole(Long ecoleId) {
+        if (ecoleId == null || ecoleId <= 0) {
+            throw new RuntimeException("ecoleId invalide");
+        }
+        return documentRepository.findAllByOrgId(ecoleId);
     }
 }

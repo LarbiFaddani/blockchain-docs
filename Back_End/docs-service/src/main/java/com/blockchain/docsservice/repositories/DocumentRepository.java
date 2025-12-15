@@ -1,5 +1,6 @@
 package com.blockchain.docsservice.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ import com.blockchain.docsservice.entities.Document;
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     Optional<Document> findByHash(String hash);
+    List<Document> findAllByOrgId(Long orgId);
+
 }

@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 
-import { DocsApiService, DocumentBlockchainResult } from '../../services/docs-api.service';
+import { DocsApiService } from '../../services/docs-api.service';
 import { StudentApiService } from '../../services/student-api.service';
+import { EcoleApiService } from '../../services/ecole-api.service';
+import { AuthService } from '../../../auth/services/auth.service';
 
-import { Filiere, Student } from '../../models/ecole.models';
-import { DocumentModel } from '../../models/ecole.models';
+import { Filiere, Student, DocumentModel } from '../../models/ecole.models';
 
 @Component({
   selector: 'app-ecole-document',
@@ -16,92 +18,229 @@ import { DocumentModel } from '../../models/ecole.models';
   styleUrls: ['./ecole-document.component.css']
 })
 export class EcoleDocumentComponent implements OnInit {
-  form!: FormGroup;
 
-  filieres: Filiere[] = [];
-  students: Student[] = [];
-  studentsFiltered: Student[] = [];
+  // ---------- LIST ----------
+  documents: DocumentModel[] = [];
+  isLoadingDocs = false;
+  documentsLoaded = false;
 
-  selectedFile: File | null = null;
+  // ---------- ORG ----------
+  orgId: number | null = null;
+  isResolvingOrg = false;
 
-  isLoadingFilieres = false;
-  isLoadingStudents = false;
-  isSubmitting = false;
-
+  // ---------- MESSAGES ----------
   successMessage = '';
   errorMessage = '';
 
-  result: DocumentBlockchainResult | null = null;
+  // ---------- MODAL + FORM ----------
+  isModalOpen = false;
+  form!: FormGroup;
+  selectedFile: File | null = null;
+  isSubmitting = false;
 
-  // ⚠️ Remplace par ta vraie source si nécessaire
-  private ecoleIdFallback = 1;
+  // Data for modal
+  filieres: Filiere[] = [];
+  students: Student[] = [];
+  studentsFiltered: Student[] = [];
+  isLoadingFilieres = false;
+  isLoadingStudents = false;
+
+  docTypes = [
+    { value: 'ATTESTATION_SCOLARITE', label: 'Attestation de scolarité' },
+    { value: 'RELEVE_NOTES', label: 'Relevé de notes' },
+    { value: 'DIPLOME', label: 'Diplôme' },
+    { value: 'CONVENTION_STAGE', label: 'Convention de stage' },
+    { value: 'ATTESTATION_REUSSITE', label: 'Attestation de réussite' },
+    { value: 'AUTRE', label: 'Autre' }
+  ];
 
   constructor(
     private fb: FormBuilder,
     private docsApi: DocsApiService,
-    private studentApi: StudentApiService
+    private studentApi: StudentApiService,
+    private ecoleApi: EcoleApiService,
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
       filiereId: ['', Validators.required],
       studentId: ['', Validators.required],
-      docType: ['', [Validators.required, Validators.minLength(2)]]
+      docType: ['', Validators.required]
     });
 
-    const ecoleId = this.resolveEcoleId();
-
-    // ✅ Load filieres + students (une seule fois)
-    this.loadFilieres(ecoleId);
-    this.loadStudents(ecoleId);
-
-    // ✅ Filtrer les étudiants quand la filière change
+    // Filtrage étudiants selon filière
     this.form.get('filiereId')!.valueChanges.subscribe((val) => {
       this.form.get('studentId')!.setValue('');
-      this.result = null;
       this.applyStudentFilter(Number(val));
+    });
+
+    // Auto-load dès l'entrée
+    this.initAndLoadDocuments();
+  }
+
+  /* ==========================
+   * AUTO INIT + LOAD DOCS
+   * ========================== */
+  private initAndLoadDocuments(): void {
+    this.clearBanners();
+
+    const cachedOrgId = Number(localStorage.getItem('docs_org_id'));
+    if (cachedOrgId && !Number.isNaN(cachedOrgId) && cachedOrgId > 0) {
+      this.orgId = cachedOrgId;
+      this.loadDocuments();
+      return;
+    }
+
+    this.resolveOrgIdAndLoadDocuments();
+  }
+
+  private resolveOrgIdAndLoadDocuments(): void {
+    this.isResolvingOrg = true;
+
+    const authUserId = this.auth.getUserId?.() as any;
+    const fallbackLocal = Number(localStorage.getItem('docs_user_id'));
+    const userId = Number(authUserId ?? fallbackLocal);
+
+    if (!userId || Number.isNaN(userId) || userId <= 0) {
+      this.isResolvingOrg = false;
+      this.documentsLoaded = true;
+      this.errorMessage = 'Utilisateur non connecté (userId introuvable).';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.ecoleApi.getEcoleByAdmin(userId).pipe(
+      finalize(() => {
+        this.isResolvingOrg = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (ecole: any) => {
+        const id = Number(ecole?.id ?? ecole?.orgId ?? ecole?.organisationId);
+        if (!id || Number.isNaN(id) || id <= 0) {
+          this.documentsLoaded = true;
+          this.errorMessage = 'Organisation introuvable (id non retourné).';
+          return;
+        }
+
+        this.orgId = id;
+        localStorage.setItem('docs_org_id', String(id));
+        this.loadDocuments();
+      },
+      error: (err) => {
+        this.documentsLoaded = true;
+        this.errorMessage = this.normalizeHttpError(err, 'Erreur lors de getEcoleByAdmin.');
+      }
     });
   }
 
-  /* ==============================
-   * LOAD DATA
-   * ============================== */
+  loadDocuments(): void {
+    if (!this.orgId) return;
 
-  private loadFilieres(ecoleId: number): void {
-    this.isLoadingFilieres = true;
     this.errorMessage = '';
+    this.isLoadingDocs = true;
+    this.documentsLoaded = false;
 
-    this.docsApi.getFilieresByEcoleId(ecoleId).subscribe({
-      next: (data) => {
-        this.filieres = (data || []).slice().sort((a, b) =>
-          String(a.code || '').localeCompare(String(b.code || ''))
-        );
-        this.isLoadingFilieres = false;
+    this.docsApi.getDocumentsByEcoleId(this.orgId).pipe(
+      finalize(() => {
+        this.isLoadingDocs = false;
+        this.documentsLoaded = true;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (docs) => {
+        this.documents = (docs || []).slice().sort((a: any, b: any) => {
+          const ta = new Date(a?.createdAt || 0).getTime();
+          const tb = new Date(b?.createdAt || 0).getTime();
+          return tb - ta;
+        });
       },
       error: (err) => {
+        this.documents = [];
+        this.errorMessage = this.normalizeHttpError(err, 'Impossible de charger les documents.');
+      }
+    });
+  }
+
+  refreshDocuments(): void {
+    this.clearBanners();
+    this.loadDocuments();
+  }
+
+  /* ==========================
+   * MODAL
+   * ========================== */
+  openModal(): void {
+    this.clearBanners();
+    this.isModalOpen = true;
+    this.resetForm();
+    this.ensureModalDataLoaded();
+  }
+
+  closeModal(): void {
+    if (this.isSubmitting) return;
+    this.isModalOpen = false;
+    this.resetForm();
+  }
+
+  // ✅ ton HTML: (click)="onOverlayClick($event)"
+  onOverlayClick(_: MouseEvent): void {
+    if (this.isSubmitting) return;
+    this.closeModal();
+  }
+
+  // ✅ ton HTML: (click)="onModalClick($event)"
+  onModalClick(evt: MouseEvent): void {
+    evt.stopPropagation();
+  }
+
+  private ensureModalDataLoaded(): void {
+    if (!this.orgId) {
+      this.errorMessage = 'orgId introuvable.';
+      return;
+    }
+    if (this.filieres.length === 0) this.loadFilieres();
+    if (this.students.length === 0) this.loadStudents();
+  }
+
+  private loadFilieres(): void {
+    if (!this.orgId) return;
+
+    this.isLoadingFilieres = true;
+    this.docsApi.getFilieresByEcoleId(this.orgId).pipe(
+      finalize(() => {
         this.isLoadingFilieres = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (data) => {
+        this.filieres = (data || []).slice().sort((a: any, b: any) =>
+          String(a.code || '').localeCompare(String(b.code || ''))
+        );
+      },
+      error: (err) => {
         this.errorMessage = this.normalizeHttpError(err, 'Impossible de charger les filières.');
       }
     });
   }
 
-  private loadStudents(ecoleId: number): void {
-    this.isLoadingStudents = true;
-    this.errorMessage = '';
+  private loadStudents(): void {
+    if (!this.orgId) return;
 
-    this.studentApi.getStudentsByEcoleId(ecoleId).subscribe({
+    this.isLoadingStudents = true;
+    this.studentApi.getStudentsByEcoleId(this.orgId).pipe(
+      finalize(() => {
+        this.isLoadingStudents = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (data) => {
         this.students = data || [];
-        // Au départ, pas de filière sélectionnée => liste vide
         this.studentsFiltered = [];
-        this.isLoadingStudents = false;
-
-        // Si filière déjà sélectionnée (cas retour navigation)
-        const filiereId = Number(this.form.value.filiereId);
-        if (filiereId) this.applyStudentFilter(filiereId);
       },
       error: (err) => {
-        this.isLoadingStudents = false;
         this.errorMessage = this.normalizeHttpError(err, 'Impossible de charger les étudiants.');
       }
     });
@@ -113,27 +252,25 @@ export class EcoleDocumentComponent implements OnInit {
       return;
     }
 
-    // ⚠️ IMPORTANT : adapte selon ton modèle Student
-    // Ici on suppose que Student possède filiereId (ou filiere?.id)
     const filtered = (this.students || []).filter((s: any) => {
       const sid = Number(s?.filiereId ?? s?.filiere?.id);
       return sid === filiereId;
     });
 
-    // Tri : lastName puis firstName
     this.studentsFiltered = filtered.sort((a: any, b: any) => {
       const ln = String(a.lastName || '').localeCompare(String(b.lastName || ''));
       return ln !== 0 ? ln : String(a.firstName || '').localeCompare(String(b.firstName || ''));
     });
   }
 
-  /* ==============================
-   * FILE
-   * ============================== */
-
+  /* ==========================
+   * FILE + SUBMIT
+   * ========================== */
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
+
+    this.clearBanners();
 
     const file = input.files[0];
     const maxBytes = 10 * 1024 * 1024;
@@ -145,26 +282,28 @@ export class EcoleDocumentComponent implements OnInit {
     }
 
     this.selectedFile = file;
-    this.result = null;
-    this.successMessage = '';
-    this.errorMessage = '';
   }
 
+  // ✅ ton HTML: (click)="removeFile()"
   removeFile(): void {
     this.selectedFile = null;
-    this.result = null;
-    this.successMessage = '';
-    this.errorMessage = '';
   }
 
-  /* ==============================
-   * SUBMIT (Upload + Create)
-   * ============================== */
+  resetForm(): void {
+    this.form.reset({ filiereId: '', studentId: '', docType: '' });
+    this.selectedFile = null;
+    this.studentsFiltered = [];
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
+  }
 
   submitCreateDocument(): void {
-    this.successMessage = '';
-    this.errorMessage = '';
-    this.result = null;
+    this.clearBanners();
+
+    if (!this.orgId) {
+      this.errorMessage = 'orgId introuvable.';
+      return;
+    }
 
     if (!this.selectedFile) {
       this.errorMessage = 'Veuillez sélectionner un fichier.';
@@ -177,7 +316,6 @@ export class EcoleDocumentComponent implements OnInit {
       return;
     }
 
-    const orgId = this.resolveEcoleId();
     const filiereId = Number(this.form.value.filiereId);
     const userId = Number(this.form.value.studentId);
     const docType = String(this.form.value.docType || '').trim();
@@ -185,77 +323,46 @@ export class EcoleDocumentComponent implements OnInit {
     this.isSubmitting = true;
 
     this.docsApi.createDocument({
-      orgId,
+      orgId: this.orgId,
       userId,
       docType,
       file: this.selectedFile,
       filiereId
-    }).subscribe({
-      next: (doc: DocumentModel) => {
+    }).pipe(
+      finalize(() => {
         this.isSubmitting = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: () => {
+        this.successMessage = 'Document ajouté avec succès.';
 
-        this.successMessage = 'Document créé avec succès.';
-        this.result = {
-          valid: true,
-          message: 'Document enregistré avec succès.',
-          blockchainTx: doc.blockchainTx || '',
-          network: 'Ganache',
-          timestamp: doc.createdAt,
-          meta: this.buildMetaForResult(filiereId, userId, docType)
-        };
+        // ✅ fermeture automatique + reset propre
+        this.closeModal();
+
+        // ✅ refresh auto
+        this.loadDocuments();
       },
       error: (err) => {
-        this.isSubmitting = false;
-
         if (err?.status === 409) {
           this.errorMessage = 'Ce document existe déjà (hash déjà enregistré).';
         } else {
-          this.errorMessage = this.normalizeHttpError(err, 'Erreur lors de la création du document.');
+          this.errorMessage = this.normalizeHttpError(err, 'Erreur lors de l’upload du document.');
         }
       }
     });
   }
 
-  private buildMetaForResult(filiereId: number, studentId: number, docType: string) {
-    const f = this.filieres.find((x) => Number(x.id) === filiereId);
-    const s: any = this.students.find((x: any) => Number(x.id) === studentId);
-
-    const studentName = s ? `${s.lastName || ''} ${s.firstName || ''}`.trim() : '—';
-    const studentCin = s?.cin || '—';
-
-    return {
-      studentName,
-      studentCin,
-      filiereName: f?.code || '—',
-      docType
-    };
+  /* ==========================
+   * UI HELPERS
+   * ========================== */
+  get totalDocs(): number {
+    return this.documents?.length || 0;
   }
 
-  resetVerification(): void {
-    this.form.reset({ filiereId: '', studentId: '', docType: '' });
-    this.selectedFile = null;
-    this.result = null;
+  private clearBanners(): void {
     this.successMessage = '';
     this.errorMessage = '';
-    this.studentsFiltered = [];
-  }
-
-  /* ==============================
-   * HELPERS
-   * ============================== */
-
-  private resolveEcoleId(): number {
-    try {
-      const raw = localStorage.getItem('user');
-      if (raw) {
-        const u = JSON.parse(raw);
-        const id = Number(u?.ecoleId ?? u?.orgId ?? u?.organisationId ?? u?.id);
-        if (id && !Number.isNaN(id)) return id;
-      }
-    } catch {
-      // ignore
-    }
-    return this.ecoleIdFallback;
   }
 
   private normalizeHttpError(err: any, fallback: string): string {

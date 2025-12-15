@@ -95,7 +95,7 @@ export class DocsApiService {
     }
 
     //return this.http.post<DocumentModel>(`${this.baseUrl}/docs/create`, formData);
-        return this.http.post<DocumentModel>(`http://localhost:9094/api/docs/create`, formData);
+        return this.http.post<DocumentModel>(`http://localhost:8080/api/docs/create`, formData);
 
   }
 
@@ -107,6 +107,10 @@ export class DocsApiService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<DocumentBlockchainResult>(`${this.baseUrl}/docs/verify`, formData);
+  }
+
+  getDocumentsByEcoleId(ecoleId: number): Observable<DocumentModel[]> {
+    return this.http.get<DocumentModel[]>(`${this.baseUrl}/api/docs/by-ecole/${ecoleId}`);
   }
 
   /**

@@ -1,187 +1,184 @@
-<div class="documents-page">
+<div class="documents-page full">
   <div class="page-head">
-    <h2>Documents</h2>
-    <p>Enregistrer et vérifier des documents sur la blockchain</p>
+    <div>
+      <h2>Documents</h2>
+      <p>Historique de votre organisation</p>
+    </div>
   </div>
 
   <!-- BANNERS -->
   <div class="banner success" *ngIf="successMessage">{{ successMessage }}</div>
   <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <div class="verification-container">
-    <!-- =================== LEFT: FORM + UPLOAD =================== -->
-    <div class="panel">
-      <div class="panel-header">
-        <h2>📤 Upload Document</h2>
-        <p>Choisissez l’étudiant, le type du document, puis uploadez le fichier</p>
+  <!-- TOP CARDS -->
+  <div class="top-grid">
+    <!-- Add card with illustration -->
+    <div class="add-card" (click)="openModal()" role="button" tabindex="0">
+      <div class="add-left">
+        <div class="kicker" style="color: black;">Ajouter</div>
+        <h3>Nouveau document</h3>
+        <p>Uploadez un document et enregistrez-le sur la blockchain.</p>
+        <button class="btn-primary mini" style="color: black;" type="button" (click)="openModal(); $event.stopPropagation()">
+          ＋ Ajouter document
+        </button>
+      </div>
+      <div class="add-illus" aria-hidden="true"></div>
+    </div>
+
+    <!-- Stats / org -->
+    <div class="stat-card">
+      <div class="stat-head">
+        <h3>Résumé</h3>
+        <span class="pill" *ngIf="orgId">OrgId: {{ orgId }}</span>
+        <span class="pill ghost" *ngIf="!orgId">Récupération…</span>
       </div>
 
-      <form class="doc-form" [formGroup]="form" (ngSubmit)="submitCreateDocument()">
-        <!-- Filière -->
+      <div class="stat-body">
+        <div class="stat-line">
+          <div class="label">Total documents</div>
+          <div class="value">{{ totalDocs }}</div>
+        </div>
+
+        <div class="stat-line">
+          <div class="label">État</div>
+          <div class="value">
+            <span class="badge" *ngIf="isResolvingOrg || isLoadingDocs">Chargement</span>
+            <span class="badge ok" *ngIf="!isResolvingOrg && !isLoadingDocs && documentsLoaded">À jour</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTE DOCUMENTS -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>📚 Documents</h2>
+      <p *ngIf="orgId">Organisation: {{ orgId }}</p>
+      <p *ngIf="!orgId">Récupération de l’organisation…</p>
+    </div>
+
+    <!-- loader -->
+    <div class="loading" *ngIf="isResolvingOrg || isLoadingDocs">
+      <div class="spinner"></div>
+      <p>Chargement…</p>
+    </div>
+
+    <!-- table -->
+    <div class="table-wrap"
+         *ngIf="documentsLoaded && !isResolvingOrg && !isLoadingDocs && documents.length > 0">
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th style="width:90px;">ID</th>
+            <th style="width:220px;">Type</th>
+            <th style="width:120px;">Étudiant</th>
+            <th style="width:190px;">Date</th>
+            <th>Tx</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of documents">
+            <td class="strong">{{ d.id }}</td>
+            <td>{{ d.docType || '—' }}</td>
+            <td class="muted">{{ d.userId || '—' }}</td>
+            <td class="muted">{{ d.createdAt || '—' }}</td>
+            <td><span class="mono">{{ d.blockchainTx || '—' }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- empty state -->
+    <div class="results-empty"
+         *ngIf="documentsLoaded && !isResolvingOrg && !isLoadingDocs && documents.length === 0">
+      <div class="empty-icon">📭</div>
+      <h3>Aucun document</h3>
+      <p>Aucun document trouvé pour votre organisation.</p>
+      <button class="btn-primary" type="button" (click)="openModal()">＋ Ajouter votre premier document</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div class="overlay" *ngIf="isModalOpen" (click)="onOverlayClick($event)">
+  <div class="modal-card" (click)="onModalClick($event)">
+    <div class="modal-head">
+      <h3>Ajouter un document</h3>
+        <button class="icon-close" type="button" (click)="closeModal()" [disabled]="isSubmitting">✕</button>
+    </div>
+
+    <form class="doc-form" [formGroup]="form" (ngSubmit)="submitCreateDocument()">
+      <div class="row">
         <div class="field">
           <label>Filière</label>
-          <select formControlName="filiereId" [disabled]="isLoadingFilieres">
-            <option value="">— Sélectionner une filière —</option>
+          <select formControlName="filiereId" [disabled]="isLoadingFilieres || isSubmitting">
+            <option value="">— Sélectionner —</option>
             <option *ngFor="let f of filieres" [value]="f.id">{{ f.code }}</option>
           </select>
           <small class="hint" *ngIf="isLoadingFilieres">Chargement des filières…</small>
-          <small class="hint" *ngIf="!isLoadingFilieres">Le choix de la filière filtre la liste des étudiants.</small>
         </div>
 
-        <!-- Étudiant -->
         <div class="field">
           <label>Étudiant</label>
-          <select
-            formControlName="studentId"
-            [disabled]="isLoadingStudents || studentsFiltered.length === 0">
-            <option value="">— Sélectionner un étudiant —</option>
+          <select formControlName="studentId"
+                  [disabled]="isLoadingStudents || isSubmitting || studentsFiltered.length === 0">
+            <option value="">— Sélectionner —</option>
             <option *ngFor="let s of studentsFiltered" [value]="s.id">
               {{ s.lastName }} {{ s.firstName }} — {{ s.cin }}
             </option>
           </select>
-
           <small class="hint" *ngIf="isLoadingStudents">Chargement des étudiants…</small>
           <small class="hint" *ngIf="!isLoadingStudents && studentsFiltered.length === 0">
-            Sélectionne une filière pour afficher les étudiants.
+            Choisissez une filière.
           </small>
         </div>
+      </div>
 
-        <!-- Type document -->
+      <div class="row">
         <div class="field">
           <label>Type de document</label>
-          <input
-            type="text"
-            formControlName="docType"
-            placeholder="Ex: Attestation de scolarité, Diplôme, Relevé de notes..." />
+          <select formControlName="docType" [disabled]="isSubmitting">
+            <option value="">— Sélectionner —</option>
+            <option *ngFor="let t of docTypes" [value]="t.value">{{ t.label }}</option>
+          </select>
         </div>
+      </div>
 
-        <!-- Upload zone -->
-        <div class="upload-zone" (click)="fileInput.click()">
-          <div class="upload-icon">📄</div>
-          <h3>Glissez-déposez votre fichier</h3>
-          <p>ou cliquez pour parcourir</p>
+      <div class="upload-zone" (click)="fileInput.click()">
+        <div class="upload-icon">📄</div>
+        <h4>Choisir un fichier</h4>
+        <p>PDF, DOCX, PNG, JPG (Max 10MB)</p>
 
-          <button
-            type="button"
-            class="btn-upload"
-            (click)="fileInput.click(); $event.stopPropagation()">
-            Choisir un fichier
-          </button>
+        <input #fileInput type="file" class="file-input"
+               accept=".pdf,.docx,.png,.jpg,.jpeg"
+               (change)="onFileSelected($event)" />
+      </div>
 
-          <p class="file-types">PDF, DOCX, PNG, JPG (Max 10MB)</p>
-
-          <input
-            #fileInput
-            type="file"
-            class="file-input"
-            accept=".pdf,.docx,.png,.jpg,.jpeg"
-            (change)="onFileSelected($event)" />
+      <div class="uploaded-file" [class.show]="selectedFile">
+        <div class="file-icon-display">📋</div>
+        <div class="file-info">
+          <h4>{{ selectedFile?.name }}</h4>
+          <p>{{ selectedFile ? (selectedFile.size / 1024 / 1024 | number:'1.1-2') + ' MB' : '' }}</p>
         </div>
+        <button type="button" class="btn-remove" (click)="removeFile()">✕</button>
+      </div>
 
-        <!-- File preview -->
-        <div class="uploaded-file" [class.show]="selectedFile">
-          <div class="file-icon-display">📋</div>
-          <div class="file-info">
-            <h4>{{ selectedFile?.name }}</h4>
-            <p>{{ selectedFile ? (selectedFile.size / 1024 / 1024 | number:'1.1-2') + ' MB' : '' }}</p>
-          </div>
-          <button type="button" class="btn-remove" (click)="removeFile()">✕</button>
-        </div>
-
-        <!-- Submit -->
-        <button
-          type="submit"
-          class="btn-verify"
-          [class.show]="selectedFile && !isSubmitting"
-          [disabled]="isSubmitting || form.invalid || !selectedFile">
-          {{ isSubmitting ? 'Traitement…' : '⛓️ Enregistrer sur la blockchain' }}
+      <div class="actions">
+        <button type="submit" class="btn-primary"
+                [disabled]="isSubmitting || form.invalid || !selectedFile">
+          {{ isSubmitting ? 'Upload…' : 'Uploader' }}
         </button>
 
-        <div class="form-error" *ngIf="form.touched && form.invalid">
-          Merci de sélectionner une filière, un étudiant et un type de document.
-        </div>
-      </form>
-    </div>
-
-    <!-- =================== RIGHT: RESULTS =================== -->
-    <div class="panel">
-      <div class="panel-header">
-        <h2>📊 Résultats</h2>
-        <p>Informations de vérification blockchain</p>
-      </div>
-
-      <!-- Empty -->
-      <div class="results-empty" *ngIf="!selectedFile && !isSubmitting && !result">
-        <div class="empty-icon">🔍</div>
-        <h3>En attente</h3>
-        <p>Choisissez un étudiant et uploadez un document pour commencer</p>
-      </div>
-
-      <!-- Loading -->
-      <div class="loading" [class.show]="isSubmitting">
-        <div class="spinner"></div>
-        <p>Enregistrement et transaction blockchain…</p>
-      </div>
-
-      <!-- Results -->
-      <div class="results-content" [class.show]="!!result && !isSubmitting" *ngIf="result">
-        <div class="status-header">
-          <div class="status-icon" [ngClass]="result.valid ? 'verified' : 'invalid'">
-            {{ result.valid ? '✓' : '✕' }}
-          </div>
-          <h2 [ngClass]="result.valid ? 'verified' : 'invalid'">
-            {{ result.valid ? 'Document enregistré' : 'Échec' }}
-          </h2>
-          <p>{{ result.message }}</p>
-        </div>
-
-        <div class="info-card" *ngIf="result.meta">
-          <div class="info-row">
-            <span class="info-label">Étudiant</span>
-            <span class="info-value">{{ result.meta.studentName }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">CIN</span>
-            <span class="info-value">{{ result.meta.studentCin }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Filière</span>
-            <span class="info-value">{{ result.meta.filiereName }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Type Document</span>
-            <span class="info-value">{{ result.meta.docType }}</span>
-          </div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-row">
-            <span class="info-label">Transaction</span>
-            <span class="info-value mono">{{ result.blockchainTx || '—' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Bloc</span>
-            <span class="info-value">{{ result.blockNumber ?? '—' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Réseau</span>
-            <span class="info-value">
-              <span class="blockchain-badge">
-                <span>⛓️</span>
-                <span>{{ result.network || 'Ganache' }}</span>
-              </span>
-            </span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Timestamp</span>
-            <span class="info-value">{{ result.timestamp || '—' }}</span>
-          </div>
-        </div>
-
-        <button type="button" class="btn-new" (click)="resetVerification()">
-          🔄 Nouveau document
+        <button type="button" class="btn-secondary"
+                (click)="resetForm()" [disabled]="isSubmitting">
+          Réinitialiser
         </button>
       </div>
-    </div>
+
+      <div class="form-error" *ngIf="form.touched && form.invalid">
+        Merci de remplir tous les champs.
+      </div>
+    </form>
   </div>
 </div>
