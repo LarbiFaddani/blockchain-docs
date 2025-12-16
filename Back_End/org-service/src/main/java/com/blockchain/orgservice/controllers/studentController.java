@@ -42,6 +42,16 @@ public class studentController {
         return etudiantService.findByName(firstName, lastName);
     }
 
+    @GetMapping("/{id}")
+    public StudentResponse getById(@PathVariable Long id) {
+        return etudiantService.getStudentById(id);
+    }
+
+    @GetMapping("/by-user/{userId}")
+    public StudentResponse getByUserId(@PathVariable Long userId) {
+        return etudiantService.getStudentByUserId(userId);
+    }
+
     @PutMapping("/update/{id}")
     public StudentResponse updateStudent(@PathVariable Long id, @RequestBody RegisterEtudiantRequest request) {
         return etudiantService.updateStudent(id, request);

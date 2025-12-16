@@ -17,6 +17,7 @@ public interface EtudiantRepository extends JpaRepository<Etudiant,Long> {
             Ecole ecole
     );
 
+            Optional<Etudiant> findByUserId(Long userId);
         List<Etudiant> findByFirstNameIgnoreCase(String firstName);
 
         List<Etudiant> findByLastNameIgnoreCase(String lastName);

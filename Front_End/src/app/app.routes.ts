@@ -15,6 +15,7 @@ import { ForbiddenComponent } from './shared/forbidden/forbidden.component';
 
 import { authGuard } from './auth/guards/auth.guard';
 import { roleGuard } from './auth/guards/role.guard';
+import { EcoleDocumentComponent } from './ecole/pages/document/ecole-document.component';
 
 // ✅ ADMIN imports
 import { AdminLayoutComponent } from './admin/layout/admin-layout.component';
@@ -23,6 +24,14 @@ import { AdminOrganisationsComponent } from './admin/pages/organisations/admin-o
 import { AdminUsersComponent } from './admin/pages/users/admin-users.component';
 import { AdminFilieresComponent } from './admin/pages/filieres/admin-filieres.component';
 import { AdminProfileComponent } from './admin/pages/profile/admin-profile.component';
+
+
+//Etudiant 
+import { EtudiantLayoutComponent } from './Etudiant/layout/etudiant-layout.component';
+import { EtudiantDocumentComponent } from './Etudiant/pages/document/etudiant-document.component';
+import { EtudiantProfileComponent } from './Etudiant/pages/profil/etudiant-profile.component';
+
+
 
 export const routes: Routes = [
   // ---------------- AUTH ----------------
@@ -57,10 +66,23 @@ export const routes: Routes = [
       { path: 'dashboard', component: EcoleDashboardComponent },
       { path: 'students', component: EcoleStudentsComponent },
       { path: 'filieres', component: EcoleFilieresComponent },
+      { path: 'documents', component: EcoleDocumentComponent },
       { path: 'profile', component: EcoleProfileComponent },
 
     ]
   },
+  {
+  path: 'etudiant',
+  component: EtudiantLayoutComponent,
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['ETUDIANT'] },
+  children: [
+    { path: '', pathMatch: 'full', redirectTo: 'documents' },
+    { path: 'documents', component: EtudiantDocumentComponent },
+    { path: 'profile', component: EtudiantProfileComponent } 
+  ]
+},
+
 
   // ---------------- ENTREPRISE ----------------
   {

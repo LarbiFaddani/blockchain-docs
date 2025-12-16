@@ -1,0 +1,78 @@
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon" aria-hidden="true">
+        <span class="mat-icon">school</span>
+      </div>
+
+      <div class="logo-text">
+        <h2>Docs-Blockchain</h2>
+        <p>Espace Étudiant</p>
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a class="nav-link"
+           routerLink="/etudiant/documents"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }">
+          <span>Documents</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link"
+           routerLink="/etudiant/profile"
+           routerLinkActive="active">
+          <span>Profil</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Profil + logout -->
+    <div class="profile-box">
+      <div class="profile-card" (click)="goProfile()" role="button" tabindex="0">
+        <div class="avatar">
+          {{ (studentName || 'E').charAt(0).toUpperCase() }}
+        </div>
+
+        <div class="profile-info">
+          <div class="profile-name">{{ studentName }}</div>
+          <div class="profile-email">{{ studentEmail }}</div>
+        </div>
+      </div>
+
+      <button class="logout-btn" type="button" (click)="logout()">
+        Déconnexion
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="chip" *ngIf="loading">Chargement…</div>
+      <div class="chip chip-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <h1>{{ studentName }}</h1>
+        <p class="header-subtitle">
+          {{ student?.studentCode || '—' }} • {{ student?.level || '—' }}
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <a class="btn-ghost" routerLink="/etudiant/documents">Mes documents</a>
+        <a class="btn-primary" routerLink="/etudiant/profile">Mon profil</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

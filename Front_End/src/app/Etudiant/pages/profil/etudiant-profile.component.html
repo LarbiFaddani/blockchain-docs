@@ -1,0 +1,81 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Mon Profil</h2>
+      <p>Informations personnelles et sécurité du compte</p>
+    </div>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="banner ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <div class="grid">
+
+    <!-- INFOS ÉTUDIANT -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Informations Étudiant</h3>
+        <span class="pill">#{{ student?.studentCode }}</span>
+      </div>
+
+      <div class="card-body" *ngIf="student">
+        <div class="info-row">
+          <div class="label">Nom complet</div>
+          <div class="value">{{ fullName }}</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">CIN</div>
+          <div class="value">{{ student.cin }}</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">Email personnel</div>
+          <div class="value">{{ student.personalEmail }}</div>
+        </div>
+
+        <div class="info-row">
+          <div class="label">Niveau</div>
+          <div class="value">{{ student.level || '—' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANGER MOT DE PASSE -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Changer le mot de passe</h3>
+        <span class="pill ghost">Sécurité</span>
+      </div>
+
+      <form class="card-body" [formGroup]="form" (ngSubmit)="submit()">
+
+        <div class="field">
+          <label>Ancien mot de passe</label>
+          <input type="password" formControlName="currentPassword" />
+        </div>
+
+        <div class="field">
+          <label>Nouveau mot de passe</label>
+          <input type="password" formControlName="newPassword" />
+        </div>
+
+        <div class="field">
+          <label>Confirmation</label>
+          <input type="password" formControlName="confirmPassword" />
+        </div>
+
+        <div class="err" *ngIf="form.errors?.['passwordsNotMatch']">
+          Les mots de passe ne correspondent pas.
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" type="submit" [disabled]="saving">
+            {{ saving ? 'Enregistrement…' : 'Mettre à jour' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>

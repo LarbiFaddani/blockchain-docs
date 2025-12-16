@@ -1,968 +1,346 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DocsBlockchain - Espace Entreprise</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #f8fafc;
-      min-height: 100vh;
-    }
-
-    /* ==================== LAYOUT ==================== */
-    .layout {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* ==================== SIDEBAR ==================== */
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 280px;
-      height: 100vh;
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-      padding: 2rem 1.5rem;
-      z-index: 100;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
-    .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .logo-icon {
-      width: 54px;
-      height: 54px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.35);
-    }
-
-    .logo-text h2 {
-      color: #ffffff;
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .logo-text p {
-      color: #94a3b8;
-      font-size: 0.8rem;
-      font-weight: 500;
-      margin-top: 0.25rem;
-    }
-
-    .nav-menu {
-      list-style: none;
-      flex: 1;
-    }
-
-    .nav-item {
-      margin-bottom: 0.5rem;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 0.875rem;
-      padding: 0.875rem 1.125rem;
-      color: #cbd5e1;
-      text-decoration: none;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-
-    .nav-link:hover {
-      background: rgba(102, 126, 234, 0.12);
-      color: #ffffff;
-      transform: translateX(4px);
-    }
-
-    .nav-link.active {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #ffffff;
-      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
-      transform: translateX(4px);
-    }
-
-    .nav-icon {
-      font-size: 1.3rem;
-    }
-
-    .user-section {
-      border-top: 1px solid rgba(148, 163, 184, 0.2);
-      padding-top: 1.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      margin-bottom: 1rem;
-    }
-
-    .user-avatar {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .user-details h4 {
-      color: #ffffff;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .user-details p {
-      color: #94a3b8;
-      font-size: 0.8rem;
-    }
-
-    .btn-logout {
-      width: 100%;
-      padding: 0.875rem;
-      background: rgba(239, 68, 68, 0.1);
-      border: 2px solid rgba(239, 68, 68, 0.2);
-      color: #f87171;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: rgba(239, 68, 68, 0.4);
-      color: #ef4444;
-    }
-
-    /* ==================== MAIN CONTENT ==================== */
-    .main-content {
-      flex: 1;
-      margin-left: 280px;
-      min-height: 100vh;
-    }
-
-    .header {
-      background: #ffffff;
-      padding: 2rem 2.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .header h1 {
-      font-size: 2rem;
-      color: #0f172a;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: 0.25rem;
-    }
-
-    .header .subtitle {
-      color: #64748b;
-      font-size: 0.95rem;
-    }
-
-    .content {
-      padding: 2.5rem;
-    }
-
-    /* ==================== PAGE: VERIFICATION ==================== */
-    .verification-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .panel {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 2.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .panel-header {
-      margin-bottom: 2rem;
-    }
-
-    .panel-header h2 {
-      font-size: 1.5rem;
-      color: #1e293b;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .panel-header p {
-      color: #64748b;
-      font-size: 0.95rem;
-    }
-
-    .upload-zone {
-      background: #f8fafc;
-      border: 3px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 3rem 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .upload-zone:hover {
-      border-color: #667eea;
-      background: rgba(102, 126, 234, 0.05);
-    }
-
-    .upload-zone.dragover {
-      border-color: #667eea;
-      background: rgba(102, 126, 234, 0.1);
-      border-style: solid;
-    }
-
-    .upload-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-    }
-
-    .upload-zone h3 {
-      font-size: 1.25rem;
-      color: #1e293b;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-    }
-
-    .upload-zone p {
-      color: #64748b;
-      margin-bottom: 1.5rem;
-    }
-
-    .btn-upload {
-      padding: 0.875rem 2rem;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #ffffff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-upload:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-    }
-
-    .file-input {
-      display: none;
-    }
-
-    .file-types {
-      font-size: 0.85rem;
-      color: #94a3b8;
-      margin-top: 1rem;
-    }
-
-    .uploaded-file {
-      display: none;
-      background: #f8fafc;
-      padding: 1.5rem;
-      border-radius: 16px;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .uploaded-file.show {
-      display: flex;
-    }
-
-    .file-icon-display {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
-
-    .file-info {
-      flex: 1;
-    }
-
-    .file-info h4 {
-      color: #1e293b;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .file-info p {
-      color: #64748b;
-      font-size: 0.85rem;
-    }
-
-    .btn-remove {
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-remove:hover {
-      background: #fecaca;
-    }
-
-    .btn-verify {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #ffffff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-      display: none;
-    }
-
-    .btn-verify.show {
-      display: block;
-    }
-
-    .btn-verify:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
-    }
-
-    .results-empty {
-      text-align: center;
-      padding: 3rem 0;
-      color: #94a3b8;
-    }
-
-    .results-empty .empty-icon {
-      font-size: 5rem;
-      margin-bottom: 1.5rem;
-      opacity: 0.5;
-    }
-
-    .results-empty h3 {
-      font-size: 1.5rem;
-      color: #475569;
-      margin-bottom: 0.5rem;
-    }
-
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 3rem 0;
-    }
-
-    .loading.show {
-      display: block;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid #e2e8f0;
-      border-top-color: #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1.5rem;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .results-content {
-      display: none;
-    }
-
-    .results-content.show {
-      display: block;
-    }
-
-    .status-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .status-icon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 1rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      animation: scaleIn 0.5s ease;
-    }
-
-    @keyframes scaleIn {
-      from {
-        transform: scale(0);
-      }
-      to {
-        transform: scale(1);
-      }
-    }
-
-    .status-icon.verified {
-      background: linear-gradient(135deg, #10b981, #059669);
-      box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
-    }
-
-    .status-icon.invalid {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
-    }
-
-    .status-header h2 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-    }
-
-    .status-header h2.verified {
-      color: #10b981;
-    }
-
-    .status-header h2.invalid {
-      color: #ef4444;
-    }
-
-    .status-header p {
-      color: #64748b;
-    }
-
-    .info-card {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .info-row:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .info-label {
-      color: #64748b;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .info-value {
-      color: #1e293b;
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-align: right;
-      word-break: break-all;
-    }
-
-    .blockchain-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(102, 126, 234, 0.1);
-      border: 1px solid rgba(102, 126, 234, 0.2);
-      border-radius: 20px;
-      color: #667eea;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .btn-new {
-      width: 100%;
-      padding: 1rem;
-      background: #f8fafc;
-      color: #475569;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 1.5rem;
-      transition: all 0.3s ease;
-    }
-
-    .btn-new:hover {
-      background: #ffffff;
-      border-color: #cbd5e1;
-    }
-
-    /* ==================== PAGE: PROFIL ==================== */
-    .profile-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .profile-card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 2.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      margin-bottom: 2rem;
-    }
-
-    .profile-header {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      margin-bottom: 2.5rem;
-      padding-bottom: 2rem;
-      border-bottom: 2px solid #e2e8f0;
-    }
-
-    .profile-avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #ffffff;
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-    }
-
-    .profile-info h2 {
-      font-size: 1.75rem;
-      color: #1e293b;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-    }
-
-    .profile-info p {
-      color: #64748b;
-      font-size: 1rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
-
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .form-field.full {
-      grid-column: span 2;
-    }
-
-    .form-field label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #334155;
-    }
-
-    .form-field input,
-    .form-field select {
-      padding: 0.875rem 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      color: #0f172a;
-      background: #ffffff;
-      transition: all 0.3s ease;
-    }
-
-    .form-field input:focus,
-    .form-field select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    }
-
-    .btn-primary {
-      padding: 1rem 2rem;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #ffffff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-    }
-
-    .btn-secondary {
-      padding: 1rem 2rem;
-      background: #f8fafc;
-      color: #475569;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-secondary:hover {
-      background: #ffffff;
-      border-color: #cbd5e1;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-
-    /* ==================== BANNER ==================== */
-    .banner {
-      padding: 1rem 1.25rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      font-size: 0.9rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .banner.success {
-      background: rgba(16, 185, 129, 0.1);
-      border: 2px solid #10b981;
-      color: #059669;
-    }
-
-    .banner.success::before {
-      content: "✅";
-      font-size: 1.2rem;
-    }
-
-    /* ==================== RESPONSIVE ==================== */
-    @media (max-width: 1024px) {
-      .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main-content {
-        margin-left: 0;
-      }
-
-      .verification-container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .header {
-        padding: 1.5rem;
-      }
-
-      .header h1 {
-        font-size: 1.5rem;
-      }
-
-      .content {
-        padding: 1.5rem;
-      }
-
-      .panel {
-        padding: 1.5rem;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .form-field.full {
-        grid-column: span 1;
-      }
-
-      .profile-header {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .form-actions {
-        flex-direction: column;
-      }
-
-      .btn-primary,
-      .btn-secondary {
-        width: 100%;
-      }
-    }
-
-    /* ==================== UTILITIES ==================== */
-    .hidden {
-      display: none !important;
-    }
-  </style>
-</head>
-<body>
-  <div class="layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <div class="logo-icon">🔐</div>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">
+          <span class="material-icons">business</span>
+        </div>     
+        
         <div class="logo-text">
-          <h2>DocsBlockchain</h2>
-          <p>Espace Entreprise</p>
-        </div>
+        <h2>DocsBlockchain</h2>
+        <p>Espace Entreprise</p>
       </div>
+    </div>
 
-      <ul class="nav-menu">
-        <li class="nav-item">
-          <a class="nav-link active" onclick="showPage('verification')">
-            <span class="nav-icon">🔍</span>
-            <span>Vérification</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" onclick="showPage('profile')">
-            <span class="nav-icon">👤</span>
-            <span>Mon Profil</span>
-          </a>
-        </li>
-      </ul>
-
-      <div class="user-section">
-        <div class="user-info">
-          <div class="user-avatar">AM</div>
-          <div class="user-details">
-            <h4>Acme Corporation</h4>
-            <p>acme@entreprise.com</p>
-          </div>
-        </div>
-        <button class="btn-logout" onclick="logout()">
-          <span>Déconnexion</span>
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <button class="nav-link" type="button"
+                [class.active]="activePage === 'verification'"
+                (click)="showPage('verification')">
+          <span>Vérification</span>
         </button>
+      </li>
+
+      <li class="nav-item">
+        <button class="nav-link" type="button"
+                [class.active]="activePage === 'profile'"
+                (click)="showPage('profile')">
+          <span>Mon Profil</span>
+        </button>
+      </li>
+    </ul>
+
+    <div class="user-section">
+      <div class="user-info">
+        <div class="user-avatar">{{ profileInitials }}</div>
+        <div class="user-details">
+          <h4>{{ myEntreprise?.name || '—' }}</h4>
+          <p>{{ myEntreprise?.emailContact || '—' }}</p>
+        </div>
       </div>
-    </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-      <!-- PAGE: VERIFICATION -->
-      <div id="pageVerification">
-        <header class="header">
-          <h1>Vérification de Documents</h1>
-          <p class="subtitle">Vérifiez l'authenticité des documents sur la blockchain</p>
-        </header>
+      <button class="btn-logout" type="button" (click)="logout()">
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
 
-        <div class="content">
-          <div class="verification-container">
-            <!-- Panel Upload -->
-            <div class="panel">
-              <div class="panel-header">
-                <h2>📤 Upload Document</h2>
-                <p>Glissez-déposez ou sélectionnez un fichier à vérifier</p>
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- PAGE: VERIFICATION -->
+    <section *ngIf="activePage === 'verification'">
+      <header class="header">
+        <h1>Vérification de Documents</h1>
+        <p class="subtitle">Vérifiez l'authenticité des documents sur la blockchain</p>
+      </header>
+
+      <div class="content">
+        <div class="verification-container">
+
+          <!-- Panel Upload -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2>📤 Upload Document</h2>
+              <p>Glissez-déposez ou sélectionnez un fichier à vérifier</p>
+            </div>
+
+            <div class="banner error" *ngIf="errorMessage">
+              <span class="b-ico">⚠️</span>
+              <span>{{ errorMessage }}</span>
+            </div>
+
+            <div class="upload-zone"
+                 [class.dragover]="isDragOver"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)"
+                 (click)="openFilePicker()"
+                 role="button" tabindex="0">
+
+              <div class="upload-icon">📄</div>
+              <h3>Glissez-déposez votre fichier</h3>
+              <p>ou cliquez pour parcourir</p>
+
+              <button class="btn-upload" type="button"
+                      (click)="openFilePicker(); $event.stopPropagation()">
+                Choisir un fichier
+              </button>
+
+              <p class="file-types">PDF, DOCX, PNG, JPG (Max 10MB)</p>
+
+              <input #fileInput type="file" class="file-input"
+                     accept=".pdf,.docx,.png,.jpg,.jpeg"
+                     (change)="onFileSelected($event)" />
+            </div>
+
+            <div class="uploaded-file" [class.show]="selectedFile">
+              <div class="file-icon-display">📋</div>
+              <div class="file-info">
+                <h4>{{ selectedFile?.name }}</h4>
+                <p>{{ fileSizeLabel }}</p>
               </div>
+              <button class="btn-remove" type="button" (click)="removeFile()">✕</button>
+            </div>
 
-              <div class="upload-zone" id="uploadZone">
-                <div class="upload-icon">📄</div>
-                <h3>Glissez-déposez votre fichier</h3>
-                <p>ou cliquez pour parcourir</p>
-                <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
-                  Choisir un fichier
-                </button>
-                <p class="file-types">PDF, DOCX, PNG, JPG (Max 10MB)</p>
-                <input type="file" id="fileInput" class="file-input" accept=".pdf,.docx,.png,.jpg,.jpeg">
-              </div>
+            <button class="btn-verify" type="button"
+                    [class.show]="!!selectedFile"
+                    [disabled]="isVerifying || !selectedFile"
+                    (click)="verifyDocument()">
+              {{ isVerifying ? 'Vérification...' : '🔍 Vérifier l’authenticité' }}
+            </button>
+          </div>
 
-              <div class="uploaded-file" id="uploadedFile">
-                <div class="file-icon-display">📋</div>
-                <div class="file-info">
-                  <h4 id="fileName">diplome.pdf</h4>
-                  <p id="fileSize">2.3 MB</p>
+          <!-- Panel Results -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2>📊 Résultats</h2>
+              <p>Informations de vérification blockchain</p>
+            </div>
+
+            <div class="results-empty" *ngIf="!isVerifying && !hasResult">
+              <div class="empty-icon">🔍</div>
+              <h3>En attente</h3>
+              <p>Uploadez un document pour commencer</p>
+            </div>
+
+            <div class="loading" [class.show]="isVerifying">
+              <div class="spinner"></div>
+              <p>Vérification sur la blockchain...</p>
+            </div>
+
+            <div class="results-content" [class.show]="hasResult && !isVerifying" *ngIf="verifyResponse">
+              <div class="status-header">
+                <div class="status-icon" [class.verified]="isValid" [class.invalid]="!isValid">
+                  {{ isValid ? '✓' : '✕' }}
                 </div>
-                <button class="btn-remove" onclick="removeFile()">✕</button>
+
+                <h2 [class.verified]="isValid" [class.invalid]="!isValid">
+                  {{ isValid ? 'Document Authentique' : 'Document Non Authentique' }}
+                </h2>
+
+                <p class="status-msg">{{ verifyResponse.message }}</p>
+
+                <button *ngIf="verifyResponse?.downloadUrl"
+                        class="btn-download" type="button"
+                        (click)="ddownload(verifyResponse.downloadUrl!)">
+                  ⬇️ Télécharger le document
+                </button>
               </div>
 
-              <button class="btn-verify" id="btnVerify" onclick="verifyDocument()">
-                🔍 Vérifier l'authenticité
+              <!-- ✅ Infos -->
+              <div class="info-card"> 
+                <!-- <div class="info-row">
+                  <span class="info-label">OrgId</span>
+                  <span class="info-value">{{ verifyResponse.orgId ?? '—' }}</span>
+                </div>  -->
+
+                <div class="info-row">
+                  <span class="info-label">École</span>
+                  <span class="info-value">{{ verifiedEcole?.name || '—' }}</span>
+                </div>
+
+                <!-- <div class="info-row">
+                  <span class="info-label">UserId</span>
+                  <span class="info-value">{{ verifyResponse.userId ?? '—' }}</span>
+                </div> -->
+
+                <div class="info-row">
+                  <span class="info-label">Type Document</span>
+                  <span class="info-value">{{ verifyResponse.docType ?? '—' }}</span>
+                </div>
+
+                <!-- ✅ NOUVEAU: Étudiant -->
+                <div class="info-row">
+                  <span class="info-label">Étudiant</span>
+                  <span class="info-value">
+                    {{ verifiedStudent ? (verifiedStudent.lastName + ' ' + verifiedStudent.firstName) : '—' }}
+                  </span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">CIN</span>
+                  <span class="info-value">{{ verifiedStudent?.cin || '—' }}</span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Code étudiant</span>
+                  <span class="info-value">{{ verifiedStudent?.studentCode || '—' }}</span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Statut compte</span>
+                  <span class="info-value">
+                    {{
+                      verifiedStudent?.enabled === true ? 'Actif' :
+                      verifiedStudent?.enabled === false ? 'Désactivé' : '—'
+                    }}
+                  </span>
+                </div>
+              </div>
+
+              <button class="btn-new" type="button" (click)="resetVerification()">
+                🔄 Vérifier un autre document
               </button>
             </div>
+          </div>
 
-            <!-- Panel Results -->
-            <div class="panel">
-              <div class="panel-header">
-                <h2>📊 Résultats</h2>
-                <p>Informations de vérification blockchain</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: PROFIL -->
+    <section *ngIf="activePage === 'profile'">
+      <header class="header">
+        <h1>Mon Profil</h1>
+        <p class="subtitle">Informations de l’entreprise liée à votre compte</p>
+      </header>
+
+      <div class="content">
+        <div class="profile-container">
+          <div class="profile-card">
+
+            <div class="profile-header">
+              <div class="profile-avatar">{{ profileInitials }}</div>
+              <div class="profile-info">
+                <h2>{{ myEntreprise?.name || '—' }}</h2>
+                <p>{{ myEntreprise?.city || '—' }}</p>
+              </div>
+            </div>
+
+            <div class="banner error" *ngIf="profileError">
+              <span class="b-ico">⚠️</span>
+              <span>{{ profileError }}</span>
+            </div>
+
+            <div class="banner success" *ngIf="saveSuccess">
+              <span class="b-ico">✅</span>
+              <span>{{ saveSuccess }}</span>
+            </div>
+
+            <div class="banner error" *ngIf="saveError">
+              <span class="b-ico">⚠️</span>
+              <span>{{ saveError }}</span>
+            </div>
+
+            <div class="loading show" *ngIf="loadingProfile">
+              <div class="spinner"></div>
+              <p>Chargement du profil…</p>
+            </div>
+
+            <!-- VIEW MODE -->
+            <div class="info-card" *ngIf="!loadingProfile && myEntreprise && !editMode">
+              <div class="info-row">
+                <span class="info-label">Email contact</span>
+                <span class="info-value">{{ myEntreprise.emailContact || '—' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Adresse</span>
+                <span class="info-value">{{ myEntreprise.address || '—' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">ID Entreprise</span>
+                <span class="info-value">{{ myEntreprise.id || '—' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">ICE</span>
+                <span class="info-value">{{ myEntreprise.ice || '—' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Secteur d’activité</span>
+                <span class="info-value">{{ myEntreprise.secteurActivite || '—' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Statut juridique</span>
+                <span class="info-value">{{ myEntreprise.statutJuridique || '—' }}</span>
               </div>
 
-              <div class="results-empty" id="resultsEmpty">
-                <div class="empty-icon">🔍</div>
-                <h3>En attente</h3>
-                <p>Uploadez un document pour commencer</p>
+              <div class="btn-row">
+                <button class="btn-primary" type="button" (click)="startEdit()">✏️ Modifier</button>
+                <button class="btn-secondary" type="button" (click)="loadMyProfile()" [disabled]="loadingProfile">↻ Rafraîchir</button>
+              </div>
+            </div>
+
+            <!-- EDIT MODE -->
+            <div class="info-card" *ngIf="!loadingProfile && myEntreprise && editMode">
+
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>Nom</label>
+                  <input class="input" [(ngModel)]="entrepriseForm.name" name="name" type="text" />
+                </div>
+
+                <div class="form-field">
+                  <label>Email</label>
+                  <input class="input" [(ngModel)]="entrepriseForm.emailContact" name="emailContact" type="email" />
+                </div>
+
+                <div class="form-field">
+                  <label>Ville</label>
+                  <input class="input" [(ngModel)]="entrepriseForm.city" name="city" type="text" />
+                </div>
+
+                <div class="form-field">
+                  <label>Adresse</label>
+                  <input class="input" [(ngModel)]="entrepriseForm.address" name="address" type="text" />
+                </div>
+
+                <div class="form-field">
+                  <label>ICE</label>
+                  <input class="input" [(ngModel)]="entrepriseForm.ice" name="ice" type="text" />
+                </div>
+
+                <div class="form-field">
+                  <label>Secteur</label>
+                  <input class="input" [(ngModel)]="entrepriseForm.secteurActivite" name="secteurActivite" type="text" />
+                </div>
+
+                <div class="form-field">
+                  <label>Statut</label>
+                  <input class="input" [(ngModel)]="entrepriseForm.statutJuridique" name="statutJuridique" type="text" />
+                </div>
               </div>
 
-              <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Vérification sur la blockchain...</p>
-              </div>
+              <div class="btn-row">
+                <button class="btn-primary" type="button" (click)="saveEntreprise()" [disabled]="savingProfile">
+                  {{ savingProfile ? 'Enregistrement...' : '💾 Enregistrer' }}
+                </button>
 
-              <div class="results-content" id="resultsContent">
-                <div class="status-header">
-                  <div class="status-icon verified" id="statusIcon">✓</div>
-                  <h2 class="verified" id="statusTitle">Document Authentique</h2>
-                  <p id="statusMessage">Vérifié avec succès sur la blockchain</p>
-                </div>
-
-                <div class="info-card">
-                  <div class="info-row">
-                    <span class="info-label">Étudiant</span>
-                    <span class="info-value" id="studentName">EDDAHIRY Amine</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">CIN</span>
-                    <span class="info-value" id="studentCin">BW123456</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">École</span>
-                    <span class="info-value" id="schoolName">EMSI Casablanca</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Type Document</span>
-                    <span class="info-value" id="docType">Diplôme d'Ingénieur</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Date d'émission</span>
-                    <span class="info-value" id="issueDate">15 Juin 2024</span>
-                  </div>
-                </div>
-
-                <div class="info-card">
-                  <div class="info-row">
-                    <span class="info-label">Hash Blockchain</span>
-                    <span class="info-value" style="font-family: monospace; font-size: 0.8rem;" id="blockchainHash">0x7a8f3b...92e1c4</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Bloc</span>
-                    <span class="info-value" id="blockNumber">#847562</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Réseau</span>
-                    <span class="info-value">
-                      <span class="blockchain-badge">
-                        <span>⛓️</span>
-                        <span>Ethereum</span>
-                      </span>
-                    </span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Timestamp</span>
-                    <span class="info-value" id="timestamp">2024-06-15 14:32:18</span>
-                  </div>
-                </div>
-
-                <button class="btn-new" onclick="resetVerification()">
-                  🔄 Vérifier un autre document
+                <button class="btn-secondary" type="button" (click)="cancelEdit()" [disabled]="savingProfile">
+                  Annuler
                 </button>
               </div>
             </div>
+
+            <div class="info-card" *ngIf="!loadingProfile && !myEntreprise && !profileError">
+              <p class="muted">Aucune entreprise trouvée pour ce compte.</p>
+              <button class="btn-secondary" type="button" (click)="loadMyProfile()">↻ Réessayer</button>
+            </div>
+
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- PAGE: PROFIL -->
-      <div id="pageProfile" class="hidden">
-        <header class="header">
-          <h1>Mon Profil</h1>
-          <p class="subtitle">Gérez les informations de votre entreprise</p>
-        </header>
-
-        <div class="content">
-          <div class="profile-container">
-            <div id="successBanner" class="banner success hidden">
-              Profil mis à jour avec succès !
-            </div>
-
-            <div class="profile-card">
-              <div class="profile-header">
-                
+  </main>
+</div>

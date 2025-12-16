@@ -1,0 +1,42 @@
+<div class="panel">
+  <div class="panel-header">
+    <h2>Mes documents</h2>
+    <p>Documents enregistrés et certifiés sur la blockchain</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Chargement des documents…
+  </div>
+
+  <div *ngIf="errorMessage" class="banner error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && documents.length === 0" class="empty">
+    Aucun document disponible.
+  </div>
+
+  <table *ngIf="documents.length > 0" class="doc-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Hash</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let doc of documents">
+        <td>{{ doc.docType }}</td>
+        <td class="hash">{{ doc.hash }}</td>
+        <td>{{ doc.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <button class="btn-download" (click)="download(doc.hash)">
+            Télécharger
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

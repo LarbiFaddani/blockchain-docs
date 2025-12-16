@@ -52,10 +52,12 @@ public ResponseEntity<List<EcoleDetailsResponse>> getAllEcoles() {
 }
 
     @GetMapping("/ecoles/{id}")
-    public ResponseEntity<Ecole> getEcoleById(@PathVariable Long id) {
-        Ecole ecole = organisationService.getEcoleById(id);
-        return ResponseEntity.ok(ecole);
+    public ResponseEntity<EcoleDetailsResponse> getEcoleById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                organisationService.getEcoleById(id)
+        );
     }
+
 
     @PutMapping("/ecoles/update/{id}")
     public ResponseEntity<Ecole> updateEcole(
@@ -108,4 +110,11 @@ public ResponseEntity<List<EcoleDetailsResponse>> getAllEcoles() {
         Entreprise updated = organisationService.updateEntreprise(id, entrepriseRequest);
         return ResponseEntity.ok(updated);
     }
+    @GetMapping("/entreprises/by-admin/{userId}")
+    public ResponseEntity<EntrepriseAdminDto> getEntrepriseByIdAdmin(@PathVariable Long userId) {
+        return ResponseEntity.ok(
+                organisationService.getEntrepriseByAdmin(userId)
+        );
+    }
+
 }

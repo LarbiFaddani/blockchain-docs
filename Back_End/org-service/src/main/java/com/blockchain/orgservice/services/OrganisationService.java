@@ -86,7 +86,7 @@ public class OrganisationService {
         return res;
     }
 
-    //      ECOLES
+    // ================== ECOLES ==================
 
     @Transactional(readOnly = true)
     public List<EcoleDetailsResponse> getAllEcoles() {
@@ -107,17 +107,38 @@ public class OrganisationService {
                 })
                 .toList();
     }
+
+    // ✅ DTO pour l'API GET /ecoles/{id}
     @Transactional(readOnly = true)
-    public Ecole getEcoleById(Long id) {
+    public EcoleDetailsResponse getEcoleById(Long id) {
+        Ecole e = getEcoleEntityById(id);
+
+        EcoleDetailsResponse dto = new EcoleDetailsResponse();
+        dto.setId(e.getId());
+        dto.setName(e.getName());
+        dto.setAddress(e.getAddress());
+        dto.setCity(e.getCity());
+        dto.setEmailContact(e.getEmailContact());
+        dto.setNumeroAutorisation(e.getNumeroAutorisation());
+        dto.setTypeEcole(e.getTypeEcole());
+        dto.setAnneeCreation(e.getAnneeCreation() != null ? e.getAnneeCreation().toString() : null);
+        dto.setNombreEtudiants(e.getNombreEtudiants());
+
+        return dto;
+    }
+
+    // ✅ Entity interne pour update (et autres traitements)
+    @Transactional(readOnly = true)
+    public Ecole getEcoleEntityById(Long id) {
         return ecoleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("École introuvable avec id = " + id));
     }
 
     @Transactional
     public Ecole updateEcole(Long id, Ecole updated) {
-        Ecole existing = getEcoleById(id);
+        // ✅ ici on doit récupérer l'ENTITY, pas le DTO
+        Ecole existing = getEcoleEntityById(id);
 
-        // Mise à jour des champs autorisés
         existing.setName(updated.getName());
         existing.setAddress(updated.getAddress());
         existing.setCity(updated.getCity());
@@ -130,8 +151,7 @@ public class OrganisationService {
         return ecoleRepository.save(existing);
     }
 
-
-    //      ENTREPRISES
+    // ================== ENTREPRISES ==================
 
     @Transactional(readOnly = true)
     public List<EntrepriseAdminDto> getAllEntreprises() {
@@ -162,7 +182,6 @@ public class OrganisationService {
     public Entreprise updateEntreprise(Long id, Entreprise updated) {
         Entreprise existing = getEntrepriseById(id);
 
-        // Mise à jour des champs autorisés
         existing.setName(updated.getName());
         existing.setAddress(updated.getAddress());
         existing.setCity(updated.getCity());
@@ -173,4 +192,23 @@ public class OrganisationService {
 
         return entrepriseRepository.save(existing);
     }
+    @Transactional(readOnly = true)
+    public EntrepriseAdminDto getEntrepriseByAdmin(Long userId) {
+
+        Entreprise ent = entrepriseRepository.findByAdminUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Aucune entreprise pour cet admin"));
+
+        return EntrepriseAdminDto.builder()
+                .id(ent.getId())
+                .name(ent.getName())
+                .address(ent.getAddress())
+                .city(ent.getCity())
+                .emailContact(ent.getEmailContact())
+                .adminUserId(ent.getAdminUserId())
+                .ice(ent.getIce())
+                .secteurActivite(ent.getSecteurActivite())
+                .statutJuridique(ent.getStatutJuridique())
+                .build();
+    }
+
 }

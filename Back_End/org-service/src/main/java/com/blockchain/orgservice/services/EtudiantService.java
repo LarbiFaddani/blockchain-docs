@@ -331,4 +331,24 @@ public class EtudiantService {
         List<Etudiant> etudiants = etudiantRepository.findByEcole_Id(ecoleId);
         return mapListWithEnabled(etudiants);
     }
+
+    public StudentResponse getStudentById(Long id) {
+        Etudiant etu = etudiantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé avec id : " + id));
+
+        Boolean enabled = fetchEnabledSafe(etu.getUserId());
+        return mapToStudentResponse(etu, enabled);
+    }
+    @Transactional(readOnly = true)
+    public StudentResponse getStudentByUserId(Long userId) {
+
+        Etudiant etu = etudiantRepository.findByUserId(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("Étudiant non trouvé pour userId : " + userId)
+                );
+
+        Boolean enabled = fetchEnabledSafe(etu.getUserId());
+        return mapToStudentResponse(etu, enabled);
+    }
+
 }

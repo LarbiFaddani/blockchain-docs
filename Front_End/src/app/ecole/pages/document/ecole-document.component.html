@@ -1,0 +1,189 @@
+<div class="page">
+  <div class="page-head">
+    <div class="title">
+      <h2>Documents</h2>
+      <p>Historique et ajout de documents pour votre organisation</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn btn-ghost" type="button"
+              (click)="refreshDocuments()"
+              [disabled]="isResolvingOrg || isLoadingDocs">
+        {{ (isResolvingOrg || isLoadingDocs) ? 'Chargement…' : '↻ Actualiser' }}
+      </button>
+
+      <button class="btn btn-primary" type="button" (click)="openModal()">
+        ＋ Ajouter document
+      </button>
+    </div>
+  </div>
+
+  <!-- BANNERS -->
+  <div class="banner banner-success" *ngIf="successMessage">
+    <span class="b-ico">✅</span>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div class="banner banner-error" *ngIf="errorMessage">
+    <span class="b-ico">⚠️</span>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="summary-card">
+      <div class="s-label">OrgId</div>
+      <div class="s-value">{{ orgId || '—' }}</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="s-label">Total documents</div>
+      <div class="s-value">{{ totalDocs }}</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="s-label">État</div>
+      <div class="s-value">
+        <span class="pill" *ngIf="isResolvingOrg || isLoadingDocs">Chargement</span>
+        <span class="pill pill-ok" *ngIf="!isResolvingOrg && !isLoadingDocs && documentsLoaded">À jour</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST -->
+  <div class="card">
+    <div class="card-head">
+      <h3>Liste des documents</h3>
+      <p *ngIf="orgId">Organisation: {{ orgId }}</p>
+      <p *ngIf="!orgId">Récupération de l’organisation…</p>
+    </div>
+
+    <div class="loading" *ngIf="isResolvingOrg || isLoadingDocs">
+      <div class="spinner"></div>
+      <p>Chargement…</p>
+    </div>
+
+    <div class="table-wrap"
+         *ngIf="documentsLoaded && !isResolvingOrg && !isLoadingDocs && documents.length > 0">
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th style="width:90px;">ID</th>
+            <th style="width:220px;">Type</th>
+            <th style="width:140px;">Étudiant</th>
+            <th style="width:190px;">Date</th>
+            <th>Tx</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of documents">
+            <td class="strong">{{ d.id }}</td>
+            <td>{{ d.docType || '—' }}</td>
+            <td class="muted">{{ d.userId || '—' }}</td>
+            <td class="muted">{{ d.createdAt || '—' }}</td>
+            <td><span class="mono">{{ d.blockchainTx || '—' }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty"
+         *ngIf="documentsLoaded && !isResolvingOrg && !isLoadingDocs && documents.length === 0">
+      <div class="empty-icon">📭</div>
+      <h4>Aucun document</h4>
+      <p>Aucun document trouvé pour votre organisation.</p>
+      <button class="btn btn-primary" type="button" (click)="openModal()">＋ Ajouter votre premier document</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" *ngIf="isModalOpen" (click)="onOverlayClick($event)">
+  <div class="modal" (click)="onModalClick($event)">
+    <div class="modal-head">
+      <div>
+        <h3>Ajouter un document</h3>
+        <p>Sélectionnez une filière, un étudiant, le type, puis uploadez le fichier.</p>
+      </div>
+
+      <button class="icon-close" type="button"
+              (click)="closeModal()"
+              [disabled]="isSubmitting">
+        ✕
+      </button>
+    </div>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="submitCreateDocument()">
+
+      <div class="grid two">
+        <div class="field">
+          <label>Filière</label>
+          <select formControlName="filiereId" [disabled]="isLoadingFilieres || isSubmitting">
+            <option value="">— Sélectionner —</option>
+            <option *ngFor="let f of filieres" [value]="f.id">{{ f.code }}</option>
+          </select>
+          <small class="hint" *ngIf="isLoadingFilieres">Chargement des filières…</small>
+        </div>
+
+        <div class="field">
+          <label>Étudiant</label>
+          <select formControlName="studentId"
+                  [disabled]="isLoadingStudents || isSubmitting || studentsFiltered.length === 0">
+            <option value="">— Sélectionner —</option>
+            <option *ngFor="let s of studentsFiltered" [value]="s.id">
+              {{ s.lastName }} {{ s.firstName }} — {{ s.cin }}
+            </option>
+          </select>
+          <small class="hint" *ngIf="isLoadingStudents">Chargement des étudiants…</small>
+          <small class="hint" *ngIf="!isLoadingStudents && studentsFiltered.length === 0">Choisissez une filière.</small>
+        </div>
+      </div>
+
+      <div class="grid one">
+        <div class="field">
+          <label>Type de document</label>
+          <select formControlName="docType" [disabled]="isSubmitting">
+            <option value="">— Sélectionner —</option>
+            <option *ngFor="let t of docTypes" [value]="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="upload" (click)="pickFile()">
+        <div class="u-ico">📄</div>
+        <div>
+          <div class="u-title">Choisir un fichier</div>
+          <div class="u-sub">PDF, DOCX, PNG, JPG (Max 10MB)</div>
+        </div>
+
+        <input #fileInput type="file" class="file-input"
+               accept=".pdf,.docx,.png,.jpg,.jpeg"
+               (change)="onFileSelected($event)" />
+      </div>
+
+      <div class="file-card" *ngIf="selectedFile">
+        <div class="file-ico">📋</div>
+        <div class="file-meta">
+          <div class="file-name">{{ selectedFile.name }}</div>
+          <div class="file-size">{{ (selectedFile.size / 1024 / 1024 | number:'1.1-2') + ' MB' }}</div>
+        </div>
+        <button type="button" class="file-remove" (click)="removeFile()">✕</button>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" (click)="closeModal()" [disabled]="isSubmitting">
+          Annuler
+        </button>
+
+        <button type="submit" class="btn btn-primary"
+                [disabled]="isSubmitting || form.invalid || !selectedFile">
+          {{ isSubmitting ? 'Upload…' : 'Uploader' }}
+        </button>
+      </div>
+
+      <div class="form-error" *ngIf="form.touched && form.invalid">
+        Merci de remplir tous les champs.
+      </div>
+    </form>
+  </div>
+</div>

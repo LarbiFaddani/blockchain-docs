@@ -67,22 +67,26 @@ public class SecurityConfig {
                         .requestMatchers("/filieres/**").hasAnyRole("ECOLE_ADMIN", "ADMIN")
 
                         // étudiants: ECOLE_ADMIN (et ADMIN)
-                        .requestMatchers("/student/**").hasAnyRole("ECOLE_ADMIN", "ADMIN")
+                        .requestMatchers("/student/**").hasAnyRole("ECOLE_ADMIN", "ADMIN","ENTREPRISE_ADMIN","ETUDIANT")
                         .requestMatchers(HttpMethod.POST, "/orgs/students").hasAnyRole("ECOLE_ADMIN", "ADMIN")
 
                         // récupérer l'école d'un admin (ECOLE_ADMIN et ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/orgs/ecoles/by-admin/**").hasAnyRole("ECOLE_ADMIN", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/orgs/ecoles/by-admin/**").hasAnyRole("ECOLE_ADMIN","ENTREPRISE_ADMIN", "ADMIN")
 
                         // ---------------- ADMIN scope (gestion globale) ----------------
                         // écoles globales
                         .requestMatchers(HttpMethod.GET, "/orgs/ecoles").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/orgs/ecoles/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/orgs/ecoles/*").hasAnyRole("ADMIN","ENTREPRISE_ADMIN")
                         // update école : ADMIN et ECOLE_ADMIN (si tu veux autoriser l’école admin à modifier son école)
                         .requestMatchers(HttpMethod.PUT, "/orgs/ecoles/update/**").hasAnyRole("ECOLE_ADMIN", "ADMIN")
 
                         // entreprises globales
                         .requestMatchers(HttpMethod.GET, "/orgs/entreprises").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/orgs/entreprises/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/student/*").hasAnyRole("ENTREPRISE_ADMIN","ETUDIANT")
+
+                        .requestMatchers(HttpMethod.GET, "/entreprises/by-admin/*entreprises/by-admin").hasRole("ENTREPRISE_ADMIN")
+
                         // update entreprise : ADMIN et ENTREPRISE_ADMIN (si tu veux)
                         .requestMatchers(HttpMethod.PUT, "/orgs/entreprises/update/**").hasAnyRole("ENTREPRISE_ADMIN", "ADMIN")
 

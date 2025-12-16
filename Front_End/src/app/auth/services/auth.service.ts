@@ -78,6 +78,9 @@ export class AuthService {
       case 'ADMIN':
         this.router.navigate(['/admin/dashboard']);
         break;
+      case 'ETUDIANT':
+        this.router.navigate(['/etudiant/documents']);
+        break;
       default:
         this.router.navigate(['/']);
     }
