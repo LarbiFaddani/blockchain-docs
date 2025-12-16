@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+=======
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -32,10 +36,15 @@ export class EcoleDocumentComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+<<<<<<< HEAD
   // ---------- MODAL ----------
   isModalOpen = false;
 
   // ---------- FORM DOCUMENT ----------
+=======
+  // ---------- MODAL + FORM ----------
+  isModalOpen = false;
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   form!: FormGroup;
   selectedFile: File | null = null;
   isSubmitting = false;
@@ -47,8 +56,11 @@ export class EcoleDocumentComponent implements OnInit {
   isLoadingFilieres = false;
   isLoadingStudents = false;
 
+<<<<<<< HEAD
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
+=======
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   docTypes = [
     { value: 'ATTESTATION_SCOLARITE', label: 'Attestation de scolarité' },
     { value: 'RELEVE_NOTES', label: 'Relevé de notes' },
@@ -80,6 +92,10 @@ export class EcoleDocumentComponent implements OnInit {
       this.applyStudentFilter(Number(val));
     });
 
+<<<<<<< HEAD
+=======
+    // Auto-load dès l'entrée
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     this.initAndLoadDocuments();
   }
 
@@ -102,7 +118,11 @@ export class EcoleDocumentComponent implements OnInit {
   private resolveOrgIdAndLoadDocuments(): void {
     this.isResolvingOrg = true;
 
+<<<<<<< HEAD
     const authUserId = (this.auth.getUserId?.() as any);
+=======
+    const authUserId = this.auth.getUserId?.() as any;
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     const fallbackLocal = Number(localStorage.getItem('docs_user_id'));
     const userId = Number(authUserId ?? fallbackLocal);
 
@@ -173,28 +193,48 @@ export class EcoleDocumentComponent implements OnInit {
   }
 
   /* ==========================
+<<<<<<< HEAD
    * MODAL (DOCUMENT ONLY)
+=======
+   * MODAL
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
    * ========================== */
   openModal(): void {
     this.clearBanners();
     this.isModalOpen = true;
+<<<<<<< HEAD
     this.resetDocumentForm();
     this.ensureModalDataLoaded();
     this.cdr.detectChanges();
+=======
+    this.resetForm();
+    this.ensureModalDataLoaded();
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   }
 
   closeModal(): void {
     if (this.isSubmitting) return;
     this.isModalOpen = false;
+<<<<<<< HEAD
     this.resetDocumentForm();
     this.cdr.detectChanges();
   }
 
+=======
+    this.resetForm();
+  }
+
+  // ✅ ton HTML: (click)="onOverlayClick($event)"
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   onOverlayClick(_: MouseEvent): void {
     if (this.isSubmitting) return;
     this.closeModal();
   }
 
+<<<<<<< HEAD
+=======
+  // ✅ ton HTML: (click)="onModalClick($event)"
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   onModalClick(evt: MouseEvent): void {
     evt.stopPropagation();
   }
@@ -267,12 +307,17 @@ export class EcoleDocumentComponent implements OnInit {
   }
 
   /* ==========================
+<<<<<<< HEAD
    * FILE + SUBMIT DOCUMENT
    * ========================== */
   pickFile(): void {
     this.fileInput?.nativeElement?.click();
   }
 
+=======
+   * FILE + SUBMIT
+   * ========================== */
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -285,11 +330,15 @@ export class EcoleDocumentComponent implements OnInit {
     if (file.size > maxBytes) {
       this.errorMessage = 'Fichier trop volumineux (max 10MB).';
       this.selectedFile = null;
+<<<<<<< HEAD
       input.value = '';
+=======
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
       return;
     }
 
     this.selectedFile = file;
+<<<<<<< HEAD
     input.value = '';
     this.cdr.detectChanges();
   }
@@ -300,6 +349,16 @@ export class EcoleDocumentComponent implements OnInit {
   }
 
   private resetDocumentForm(): void {
+=======
+  }
+
+  // ✅ ton HTML: (click)="removeFile()"
+  removeFile(): void {
+    this.selectedFile = null;
+  }
+
+  resetForm(): void {
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     this.form.reset({ filiereId: '', studentId: '', docType: '' });
     this.selectedFile = null;
     this.studentsFiltered = [];
@@ -331,7 +390,10 @@ export class EcoleDocumentComponent implements OnInit {
     const docType = String(this.form.value.docType || '').trim();
 
     this.isSubmitting = true;
+<<<<<<< HEAD
     this.cdr.detectChanges();
+=======
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
 
     this.docsApi.createDocument({
       orgId: this.orgId,
@@ -348,7 +410,11 @@ export class EcoleDocumentComponent implements OnInit {
       next: () => {
         this.successMessage = 'Document ajouté avec succès.';
 
+<<<<<<< HEAD
         // ✅ modal disparait immédiatement
+=======
+        // ✅ fermeture automatique + reset propre
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
         this.closeModal();
 
         // ✅ refresh auto

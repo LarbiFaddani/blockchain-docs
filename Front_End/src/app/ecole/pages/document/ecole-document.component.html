@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="page">
   <div class="page-head">
     <div class="title">
@@ -15,10 +16,18 @@
       <button class="btn btn-primary" type="button" (click)="openModal()">
         ＋ Ajouter document
       </button>
+=======
+<div class="documents-page full">
+  <div class="page-head">
+    <div>
+      <h2>Documents</h2>
+      <p>Historique de votre organisation</p>
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     </div>
   </div>
 
   <!-- BANNERS -->
+<<<<<<< HEAD
   <div class="banner banner-success" *ngIf="successMessage">
     <span class="b-ico">✅</span>
     <span>{{ successMessage }}</span>
@@ -46,23 +55,79 @@
       <div class="s-value">
         <span class="pill" *ngIf="isResolvingOrg || isLoadingDocs">Chargement</span>
         <span class="pill pill-ok" *ngIf="!isResolvingOrg && !isLoadingDocs && documentsLoaded">À jour</span>
+=======
+  <div class="banner success" *ngIf="successMessage">{{ successMessage }}</div>
+  <div class="banner error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <!-- TOP CARDS -->
+  <div class="top-grid">
+    <!-- Add card with illustration -->
+    <div class="add-card" (click)="openModal()" role="button" tabindex="0">
+      <div class="add-left">
+        <div class="kicker" style="color: black;">Ajouter</div>
+        <h3>Nouveau document</h3>
+        <p>Uploadez un document et enregistrez-le sur la blockchain.</p>
+        <button class="btn-primary mini" style="color: black;" type="button" (click)="openModal(); $event.stopPropagation()">
+          ＋ Ajouter document
+        </button>
+      </div>
+      <div class="add-illus" aria-hidden="true"></div>
+    </div>
+
+    <!-- Stats / org -->
+    <div class="stat-card">
+      <div class="stat-head">
+        <h3>Résumé</h3>
+        <span class="pill" *ngIf="orgId">OrgId: {{ orgId }}</span>
+        <span class="pill ghost" *ngIf="!orgId">Récupération…</span>
+      </div>
+
+      <div class="stat-body">
+        <div class="stat-line">
+          <div class="label">Total documents</div>
+          <div class="value">{{ totalDocs }}</div>
+        </div>
+
+        <div class="stat-line">
+          <div class="label">État</div>
+          <div class="value">
+            <span class="badge" *ngIf="isResolvingOrg || isLoadingDocs">Chargement</span>
+            <span class="badge ok" *ngIf="!isResolvingOrg && !isLoadingDocs && documentsLoaded">À jour</span>
+          </div>
+        </div>
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
       </div>
     </div>
   </div>
 
+<<<<<<< HEAD
   <!-- LIST -->
   <div class="card">
     <div class="card-head">
       <h3>Liste des documents</h3>
+=======
+  <!-- LISTE DOCUMENTS -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>📚 Documents</h2>
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
       <p *ngIf="orgId">Organisation: {{ orgId }}</p>
       <p *ngIf="!orgId">Récupération de l’organisation…</p>
     </div>
 
+<<<<<<< HEAD
+=======
+    <!-- loader -->
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     <div class="loading" *ngIf="isResolvingOrg || isLoadingDocs">
       <div class="spinner"></div>
       <p>Chargement…</p>
     </div>
 
+<<<<<<< HEAD
+=======
+    <!-- table -->
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     <div class="table-wrap"
          *ngIf="documentsLoaded && !isResolvingOrg && !isLoadingDocs && documents.length > 0">
       <table class="docs-table">
@@ -70,7 +135,11 @@
           <tr>
             <th style="width:90px;">ID</th>
             <th style="width:220px;">Type</th>
+<<<<<<< HEAD
             <th style="width:140px;">Étudiant</th>
+=======
+            <th style="width:120px;">Étudiant</th>
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
             <th style="width:190px;">Date</th>
             <th>Tx</th>
           </tr>
@@ -87,16 +156,27 @@
       </table>
     </div>
 
+<<<<<<< HEAD
     <div class="empty"
          *ngIf="documentsLoaded && !isResolvingOrg && !isLoadingDocs && documents.length === 0">
       <div class="empty-icon">📭</div>
       <h4>Aucun document</h4>
       <p>Aucun document trouvé pour votre organisation.</p>
       <button class="btn btn-primary" type="button" (click)="openModal()">＋ Ajouter votre premier document</button>
+=======
+    <!-- empty state -->
+    <div class="results-empty"
+         *ngIf="documentsLoaded && !isResolvingOrg && !isLoadingDocs && documents.length === 0">
+      <div class="empty-icon">📭</div>
+      <h3>Aucun document</h3>
+      <p>Aucun document trouvé pour votre organisation.</p>
+      <button class="btn-primary" type="button" (click)="openModal()">＋ Ajouter votre premier document</button>
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     </div>
   </div>
 </div>
 
+<<<<<<< HEAD
 <!-- MODAL -->
 <div class="overlay" *ngIf="isModalOpen" (click)="onOverlayClick($event)">
   <div class="modal" (click)="onModalClick($event)">
@@ -116,6 +196,18 @@
     <form class="form" [formGroup]="form" (ngSubmit)="submitCreateDocument()">
 
       <div class="grid two">
+=======
+<!-- MODAL OVERLAY -->
+<div class="overlay" *ngIf="isModalOpen" (click)="onOverlayClick($event)">
+  <div class="modal-card" (click)="onModalClick($event)">
+    <div class="modal-head">
+      <h3>Ajouter un document</h3>
+        <button class="icon-close" type="button" (click)="closeModal()" [disabled]="isSubmitting">✕</button>
+    </div>
+
+    <form class="doc-form" [formGroup]="form" (ngSubmit)="submitCreateDocument()">
+      <div class="row">
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
         <div class="field">
           <label>Filière</label>
           <select formControlName="filiereId" [disabled]="isLoadingFilieres || isSubmitting">
@@ -135,11 +227,21 @@
             </option>
           </select>
           <small class="hint" *ngIf="isLoadingStudents">Chargement des étudiants…</small>
+<<<<<<< HEAD
           <small class="hint" *ngIf="!isLoadingStudents && studentsFiltered.length === 0">Choisissez une filière.</small>
         </div>
       </div>
 
       <div class="grid one">
+=======
+          <small class="hint" *ngIf="!isLoadingStudents && studentsFiltered.length === 0">
+            Choisissez une filière.
+          </small>
+        </div>
+      </div>
+
+      <div class="row">
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
         <div class="field">
           <label>Type de document</label>
           <select formControlName="docType" [disabled]="isSubmitting">
@@ -149,18 +251,26 @@
         </div>
       </div>
 
+<<<<<<< HEAD
       <div class="upload" (click)="pickFile()">
         <div class="u-ico">📄</div>
         <div>
           <div class="u-title">Choisir un fichier</div>
           <div class="u-sub">PDF, DOCX, PNG, JPG (Max 10MB)</div>
         </div>
+=======
+      <div class="upload-zone" (click)="fileInput.click()">
+        <div class="upload-icon">📄</div>
+        <h4>Choisir un fichier</h4>
+        <p>PDF, DOCX, PNG, JPG (Max 10MB)</p>
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
 
         <input #fileInput type="file" class="file-input"
                accept=".pdf,.docx,.png,.jpg,.jpeg"
                (change)="onFileSelected($event)" />
       </div>
 
+<<<<<<< HEAD
       <div class="file-card" *ngIf="selectedFile">
         <div class="file-ico">📋</div>
         <div class="file-meta">
@@ -179,6 +289,27 @@
                 [disabled]="isSubmitting || form.invalid || !selectedFile">
           {{ isSubmitting ? 'Upload…' : 'Uploader' }}
         </button>
+=======
+      <div class="uploaded-file" [class.show]="selectedFile">
+        <div class="file-icon-display">📋</div>
+        <div class="file-info">
+          <h4>{{ selectedFile?.name }}</h4>
+          <p>{{ selectedFile ? (selectedFile.size / 1024 / 1024 | number:'1.1-2') + ' MB' : '' }}</p>
+        </div>
+        <button type="button" class="btn-remove" (click)="removeFile()">✕</button>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary"
+                [disabled]="isSubmitting || form.invalid || !selectedFile">
+          {{ isSubmitting ? 'Upload…' : 'Uploader' }}
+        </button>
+
+        <button type="button" class="btn-secondary"
+                (click)="resetForm()" [disabled]="isSubmitting">
+          Réinitialiser
+        </button>
+>>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
       </div>
 
       <div class="form-error" *ngIf="form.touched && form.invalid">
