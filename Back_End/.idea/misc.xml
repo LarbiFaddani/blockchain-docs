@@ -10,10 +10,8 @@
         <option value="$PROJECT_DIR$/gateway-service/pom.xml" />
         <option value="$PROJECT_DIR$/discovery-service/pom.xml" />
         <option value="$PROJECT_DIR$/notification-service/pom.xml" />
-<<<<<<< HEAD
         <option value="$PROJECT_DIR$/../../docs-plateforme/blockchain-docs/Back_End/docs-service/pom.xml" />
-=======
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
+
         <option value="$PROJECT_DIR$/docs-service/pom.xml" />
       </list>
     </option>

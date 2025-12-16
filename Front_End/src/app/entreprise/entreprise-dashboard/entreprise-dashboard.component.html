@@ -47,6 +47,7 @@
 
   <!-- MAIN CONTENT -->
   <main class="main-content">
+
     <!-- PAGE: VERIFICATION -->
     <section *ngIf="activePage === 'verification'">
       <header class="header">
@@ -273,7 +274,6 @@
                 <span class="info-label">Statut juridique</span>
                 <span class="info-value">{{ myEntreprise.statutJuridique || '—' }}</span>
               </div>
-            </div>
 
               <div class="btn-row">
                 <button class="btn-primary" type="button" (click)="startEdit()">✏️ Modifier</button>
@@ -341,5 +341,6 @@
         </div>
       </div>
     </section>
+
   </main>
 </div>

@@ -2,14 +2,13 @@ package com.blockchain.docsservice.controllers;
 
 import com.blockchain.docsservice.dtos.DocumentCreateRequest;
 import com.blockchain.docsservice.dtos.DocumentResponse;
-import com.blockchain.docsservice.dtos.StudentDocumentDto
+import com.blockchain.docsservice.dtos.StudentDocumentDto;
 import com.blockchain.docsservice.dtos.VerifyResponse;
 import com.blockchain.docsservice.entities.Document;
 import com.blockchain.docsservice.services.BlockchainService;
 import com.blockchain.docsservice.services.DocumentService;
 import com.blockchain.docsservice.services.HashService;
 import lombok.AllArgsConstructor;
-
 import lombok.NoArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -126,11 +125,9 @@ public class DocumentController {
     public ResponseEntity<List<Document>> getDocumentsByEcole(@PathVariable Long ecoleId) {
         return ResponseEntity.ok(documentService.getDocumentsByEcole(ecoleId));
     }
-
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<List<StudentDocumentDto>> getDocumentsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(documentService.getDocumentsByUserId(userId));
     }
-
 
 }

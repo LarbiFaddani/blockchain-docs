@@ -1,10 +1,7 @@
 package com.blockchain.docsservice.services;
 
 import com.blockchain.docsservice.dtos.DocumentCreateRequest;
-<<<<<<< HEAD
 import com.blockchain.docsservice.dtos.StudentDocumentDto;
-=======
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
 import com.blockchain.docsservice.dtos.VerifyResponse;
 import com.blockchain.docsservice.entities.Document;
 import com.blockchain.docsservice.exceptions.DocumentAlreadyExistsException;
@@ -132,7 +129,6 @@ public class DocumentService {
         }
         return documentRepository.findAllByOrgId(ecoleId);
     }
-<<<<<<< HEAD
 
     @Transactional
     public List<StudentDocumentDto> getDocumentsByUserId(Long userId) {
@@ -145,6 +141,4 @@ public class DocumentService {
                 .map(StudentDocumentDto::from)
                 .toList();
     }
-=======
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
 }

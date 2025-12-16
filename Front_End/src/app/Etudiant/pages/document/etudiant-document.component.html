@@ -20,7 +20,7 @@
     <thead>
       <tr>
         <th>Type</th>
-        <th>Hash</th>
+        <!-- <th>Hash</th> -->
         <th>Date</th>
         <th></th>
       </tr>
@@ -29,7 +29,7 @@
     <tbody>
       <tr *ngFor="let doc of documents">
         <td>{{ doc.docType }}</td>
-        <td class="hash">{{ doc.hash }}</td>
+        <!-- <td class="hash">{{ doc.hash }}</td> -->
         <td>{{ doc.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
         <td>
           <button class="btn-download" (click)="download(doc.hash)">

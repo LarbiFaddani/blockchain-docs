@@ -1,17 +1,15 @@
-<<<<<<< HEAD
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
-=======
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs/operators';
+import { finalize, forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { DocsApiService } from '../../services/docs-api.service';
 import { StudentApiService } from '../../services/student-api.service';
 import { EcoleApiService } from '../../services/ecole-api.service';
 import { AuthService } from '../../../auth/services/auth.service';
 
+import { VerifyApiService } from '../../../entreprise/services/verify-api.service'; 
 import { Filiere, Student, DocumentModel } from '../../models/ecole.models';
 
 @Component({
@@ -23,44 +21,35 @@ import { Filiere, Student, DocumentModel } from '../../models/ecole.models';
 })
 export class EcoleDocumentComponent implements OnInit {
 
-  // ---------- LIST ----------
   documents: DocumentModel[] = [];
   isLoadingDocs = false;
   documentsLoaded = false;
 
-  // ---------- ORG ----------
   orgId: number | null = null;
   isResolvingOrg = false;
 
-  // ---------- MESSAGES ----------
   successMessage = '';
   errorMessage = '';
 
-<<<<<<< HEAD
-  // ---------- MODAL ----------
   isModalOpen = false;
 
-  // ---------- FORM DOCUMENT ----------
-=======
-  // ---------- MODAL + FORM ----------
-  isModalOpen = false;
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   form!: FormGroup;
   selectedFile: File | null = null;
   isSubmitting = false;
 
-  // Data for modal
   filieres: Filiere[] = [];
   students: Student[] = [];
   studentsFiltered: Student[] = [];
   isLoadingFilieres = false;
   isLoadingStudents = false;
 
-<<<<<<< HEAD
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-=======
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
+  // ✅ CACHE: userId -> "Nom Prenom"
+  studentNameByUserId: Record<number, string> = {};
+  // optionnel (pour affichage "Chargement..." si tu veux)
+  loadingStudentNames = false;
+
   docTypes = [
     { value: 'ATTESTATION_SCOLARITE', label: 'Attestation de scolarité' },
     { value: 'RELEVE_NOTES', label: 'Relevé de notes' },
@@ -76,6 +65,7 @@ export class EcoleDocumentComponent implements OnInit {
     private studentApi: StudentApiService,
     private ecoleApi: EcoleApiService,
     private auth: AuthService,
+    private verifyApi: VerifyApiService,        // ✅ injection
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -86,22 +76,14 @@ export class EcoleDocumentComponent implements OnInit {
       docType: ['', Validators.required]
     });
 
-    // Filtrage étudiants selon filière
     this.form.get('filiereId')!.valueChanges.subscribe((val) => {
       this.form.get('studentId')!.setValue('');
       this.applyStudentFilter(Number(val));
     });
 
-<<<<<<< HEAD
-=======
-    // Auto-load dès l'entrée
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     this.initAndLoadDocuments();
   }
 
-  /* ==========================
-   * AUTO INIT + LOAD DOCS
-   * ========================== */
   private initAndLoadDocuments(): void {
     this.clearBanners();
 
@@ -118,11 +100,7 @@ export class EcoleDocumentComponent implements OnInit {
   private resolveOrgIdAndLoadDocuments(): void {
     this.isResolvingOrg = true;
 
-<<<<<<< HEAD
     const authUserId = (this.auth.getUserId?.() as any);
-=======
-    const authUserId = this.auth.getUserId?.() as any;
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     const fallbackLocal = Number(localStorage.getItem('docs_user_id'));
     const userId = Number(authUserId ?? fallbackLocal);
 
@@ -179,6 +157,9 @@ export class EcoleDocumentComponent implements OnInit {
           const tb = new Date(b?.createdAt || 0).getTime();
           return tb - ta;
         });
+
+        // ✅ après chargement docs => charger les noms des étudiants
+        this.loadStudentNamesForDocs();
       },
       error: (err) => {
         this.documents = [];
@@ -192,49 +173,75 @@ export class EcoleDocumentComponent implements OnInit {
     this.loadDocuments();
   }
 
-  /* ==========================
-<<<<<<< HEAD
-   * MODAL (DOCUMENT ONLY)
-=======
-   * MODAL
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
-   * ========================== */
+  // ✅ Affichage dans le HTML
+  getStudentLabel(userId: any): string {
+    const id = Number(userId);
+    if (!id || Number.isNaN(id) || id <= 0) return '—';
+
+    const name = this.studentNameByUserId[id];
+    return name ? name : `User #${id}`; // fallback propre
+  }
+
+  // ✅ Charge les noms (avec cache)
+  private loadStudentNamesForDocs(): void {
+    const ids = (this.documents || [])
+      .map(d => Number((d as any)?.userId))
+      .filter(id => Number.isFinite(id) && id > 0);
+
+    const uniqueIds = Array.from(new Set(ids));
+
+    // ne charger que ceux qui ne sont pas déjà en cache
+    const missing = uniqueIds.filter(id => !this.studentNameByUserId[id]);
+
+    if (missing.length === 0) return;
+
+    this.loadingStudentNames = true;
+
+    const calls = missing.map(id =>
+      this.verifyApi.getStudentByUserId(id).pipe(
+        map(stu => {
+          const fn = (stu as any)?.firstName ?? '';
+          const ln = (stu as any)?.lastName ?? '';
+          const full = `${ln} ${fn}`.trim(); // ex: "ERRAAD Soufiane"
+          return { id, name: full || `User #${id}` };
+        }),
+        catchError(() => of({ id, name: `User #${id}` }))
+      )
+    );
+
+    forkJoin(calls).pipe(
+      finalize(() => {
+        this.loadingStudentNames = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe((results) => {
+      for (const r of results) {
+        this.studentNameByUserId[r.id] = r.name;
+      }
+    });
+  }
+
+  // ---------------- MODAL (inchangé) ----------------
   openModal(): void {
     this.clearBanners();
     this.isModalOpen = true;
-<<<<<<< HEAD
     this.resetDocumentForm();
     this.ensureModalDataLoaded();
     this.cdr.detectChanges();
-=======
-    this.resetForm();
-    this.ensureModalDataLoaded();
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   }
 
   closeModal(): void {
     if (this.isSubmitting) return;
     this.isModalOpen = false;
-<<<<<<< HEAD
     this.resetDocumentForm();
     this.cdr.detectChanges();
   }
 
-=======
-    this.resetForm();
-  }
-
-  // ✅ ton HTML: (click)="onOverlayClick($event)"
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   onOverlayClick(_: MouseEvent): void {
     if (this.isSubmitting) return;
     this.closeModal();
   }
 
-<<<<<<< HEAD
-=======
-  // ✅ ton HTML: (click)="onModalClick($event)"
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   onModalClick(evt: MouseEvent): void {
     evt.stopPropagation();
   }
@@ -306,18 +313,8 @@ export class EcoleDocumentComponent implements OnInit {
     });
   }
 
-  /* ==========================
-<<<<<<< HEAD
-   * FILE + SUBMIT DOCUMENT
-   * ========================== */
-  pickFile(): void {
-    this.fileInput?.nativeElement?.click();
-  }
+  pickFile(): void { this.fileInput?.nativeElement?.click(); }
 
-=======
-   * FILE + SUBMIT
-   * ========================== */
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -330,15 +327,11 @@ export class EcoleDocumentComponent implements OnInit {
     if (file.size > maxBytes) {
       this.errorMessage = 'Fichier trop volumineux (max 10MB).';
       this.selectedFile = null;
-<<<<<<< HEAD
       input.value = '';
-=======
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
       return;
     }
 
     this.selectedFile = file;
-<<<<<<< HEAD
     input.value = '';
     this.cdr.detectChanges();
   }
@@ -349,16 +342,6 @@ export class EcoleDocumentComponent implements OnInit {
   }
 
   private resetDocumentForm(): void {
-=======
-  }
-
-  // ✅ ton HTML: (click)="removeFile()"
-  removeFile(): void {
-    this.selectedFile = null;
-  }
-
-  resetForm(): void {
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
     this.form.reset({ filiereId: '', studentId: '', docType: '' });
     this.selectedFile = null;
     this.studentsFiltered = [];
@@ -390,10 +373,7 @@ export class EcoleDocumentComponent implements OnInit {
     const docType = String(this.form.value.docType || '').trim();
 
     this.isSubmitting = true;
-<<<<<<< HEAD
     this.cdr.detectChanges();
-=======
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
 
     this.docsApi.createDocument({
       orgId: this.orgId,
@@ -409,15 +389,7 @@ export class EcoleDocumentComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.successMessage = 'Document ajouté avec succès.';
-
-<<<<<<< HEAD
-        // ✅ modal disparait immédiatement
-=======
-        // ✅ fermeture automatique + reset propre
->>>>>>> 2e8fc3e2b2c3671eb80bf81170481cde16fccf86
         this.closeModal();
-
-        // ✅ refresh auto
         this.loadDocuments();
       },
       error: (err) => {
@@ -430,12 +402,7 @@ export class EcoleDocumentComponent implements OnInit {
     });
   }
 
-  /* ==========================
-   * UI HELPERS
-   * ========================== */
-  get totalDocs(): number {
-    return this.documents?.length || 0;
-  }
+  get totalDocs(): number { return this.documents?.length || 0; }
 
   private clearBanners(): void {
     this.successMessage = '';

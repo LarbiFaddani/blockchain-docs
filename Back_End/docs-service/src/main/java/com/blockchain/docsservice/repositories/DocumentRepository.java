@@ -15,6 +15,4 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     List<Document> findAllByOrgId(Long orgId);
     List<Document> findAllByUserId(Long userId);
 
-
-
 }
